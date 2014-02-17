@@ -47,8 +47,9 @@ PAGE_NAME=pl_blockimp_patch_table_stret_page
 trampoline_prefix () {
 asm << 'EOF'
     _block_tramp_dispatch:
+        // Compute config page location
         pop    %r11
-        and    $0xffffffffffffffe0, %r11 // truncate to the trampoline start (each is 8 bytes)
+        and    $0xffffffffffffffe0, %r11 // truncate to the trampoline start (each is 32 bytes)
         sub    $0x1000, %r11 // load the config location
 
         // Set up our function stack
@@ -60,12 +61,12 @@ asm << 'EOF'
         movq   %rsi, (%rsp)
 
         // Load the original IMP from the config page, and move to the second struct position
-        movq   0x10(%r11), %rdi
-        movq   %rdi, 0x8(%rsp)
+        movq   0x10(%r11), %rsi
+        movq   %rsi, 0x8(%rsp)
 
         // Load the original SEL from the config page, and move to the third struct position
-        movq   0x18(%r11), %rdi
-        movq   %rdi, 0x10(%rsp)
+        movq   0x18(%r11), %rsi
+        movq   %rsi, 0x10(%rsp)
 
         // Move our struct to the third parameter, overwriting IMP
         movq   %rsp, %rdx
