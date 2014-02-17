@@ -2,8 +2,8 @@ PLPatchMaster
 -----------
 
 PLPatchMaster provides an easy-to-use block-based swizzling API, using the block trampoline
-library provided by PLBlockIMP and a set of custom assembly trampolines for ARMv7, ARMv7s,
-ARM64, and x86-64.
+library provided by [PLBlockIMP](https://opensource.plausible.coop/src/projects/PLTP/repos/plblockimp),
+and a set of custom assembly trampolines for ARMv7, ARMv7s, ARM64, and x86-64.
 
 The implementation can apply patches to currently loading classes, as well as be used
 to register patches that will be applied when a class becomes available.
