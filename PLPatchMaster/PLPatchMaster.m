@@ -58,7 +58,7 @@
 #define STRET_TABLE blockimp_table
 #else
 #define STRET_TABLE_REQUIRED 1
-#define STRET_TABLE_CONFIG pl_blockimp_patch_table_page_config
+#define STRET_TABLE_CONFIG pl_blockimp_patch_table_stret_page_config
 #define STRET_TABLE blockimp_table_stret
 #endif
 
@@ -444,9 +444,10 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
         OSSpinLockLock(&_lock); {
             /* If the method has already been patched once, we won't need to restore the IMP */
             BOOL restoreIMP = YES;
-            if (_instancePatches[cls][NSStringFromSelector(selector)] != nil)
+            NSMutableSet *knownSels = _instancePatches[cls];
+            if ([knownSels containsObject: NSStringFromSelector(selector)])
                 restoreIMP = NO;
-            
+
             /* Otherwise, record the patch and save a restore block */
             if (_instancePatches[cls] == nil)
                 _instancePatches[(id)cls] = [NSMutableSet setWithObject: NSStringFromSelector(selector)];
