@@ -5,8 +5,9 @@ PLPatchMaster provides an easy-to-use block-based swizzling API, using the block
 library provided by [PLBlockIMP](https://opensource.plausible.coop/src/projects/PLTP/repos/plblockimp),
 and a set of custom assembly trampolines for ARMv7, ARMv7s, ARM64, and x86-64.
 
-The implementation can apply patches to currently loading classes, as well as be used
-to register patches that will be applied when a class becomes available.
+PLPatchMaster can apply patches to currently loaded classes, as well as classes
+that have not yet been loaded (eg, will be loaded at a future time) by registering
+a listener for dyld image events.
 
 Use it at your own risk; swizzling in production software is rarely, if ever, a particularly
 good idea.
