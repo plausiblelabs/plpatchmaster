@@ -16,9 +16,9 @@ Use a block to swizzle -[NSObject description]:
 
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [NSObject ex_patchInstanceSelector: @selector(description) withReplacementBlock: ^(EXPatchIMP *patch) {
-            NSObject *obj = EXPatchGetSelf(patch);
-            NSString *defaultDescription = EXPatchIMPFoward(patch, NSString *(*)(id, SEL));
+        [NSObject pl_patchInstanceSelector: @selector(description) withReplacementBlock: ^(PLPatchIMP *patch) {
+            NSObject *obj = PLPatchGetSelf(patch);
+            NSString *defaultDescription = PLPatchIMPFoward(patch, NSString *(*)(id, SEL));
             return [NSString stringWithFormat: @"Generated description for %p: %@", obj, defaultDescription];
         }];
     });

@@ -26,15 +26,12 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#import "eXcodePlugin.h"
-
-#import "EXPatchMaster.h"
-#import "EXLog.h"
+#import "PLPatchMaster.h"
 
 #define PL_BLOCKIMP_PRIVATE 1 // Required for the PLBlockIMP trampoline API
 #import <PLBlockIMP/trampoline_table.h>
 
-#import "EXBlockLayout.h"
+#import "PLBlockLayout.h"
 
 #import <mach-o/dyld.h>
 
@@ -48,7 +45,7 @@
 #endif
 
 /** Notification sent (synchronously) when an image is added. */
-static NSString *EXPatchMasterImageDidLoadNotification = @"EXPatchMasterImageDidLoadNotification";
+static NSString *PLPatchMasterImageDidLoadNotification = @"PLPatchMasterImageDidLoadNotification";
 
 /* Global lock for our mutable trampoline state. Must be held when accessing the trampoline tables. */
 static pthread_mutex_t blockimp_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -60,16 +57,16 @@ static pl_trampoline_table *blockimp_table_stret = NULL;
 static pl_trampoline_table *blockimp_table = NULL;
 
 /**
- * Create a new EXPatchIMP block IMP trampoline.
+ * Create a new PLPatchIMP block IMP trampoline.
  */
-static IMP ex_imp_implementationWithBlock (id block, SEL selector, IMP origIMP) {
+static IMP patch_imp_implementationWithBlock (id block, SEL selector, IMP origIMP) {
     /* Allocate the appropriate trampoline type. */
     pl_trampoline *tramp;
     struct Block_layout *bl = (__bridge struct Block_layout *) block;
     if (bl->flags & BLOCK_USE_STRET) {
-        tramp = pl_trampoline_alloc(&ex_blockimp_patch_table_stret_page_config, &blockimp_lock, &blockimp_table_stret);
+        tramp = pl_trampoline_alloc(&pl_blockimp_patch_table_stret_page_config, &blockimp_lock, &blockimp_table_stret);
     } else {
-        tramp = pl_trampoline_alloc(&ex_blockimp_patch_table_page_config, &blockimp_lock, &blockimp_table);
+        tramp = pl_trampoline_alloc(&pl_blockimp_patch_table_page_config, &blockimp_lock, &blockimp_table);
     }
     
     /* Configure the trampoline */
@@ -88,7 +85,7 @@ static IMP ex_imp_implementationWithBlock (id block, SEL selector, IMP origIMP) 
 /**
  * Return the backing block for an IMP trampoline.
  */
-static void *ex_imp_getBlock (IMP anImp) {
+static void *patch_imp_getBlock (IMP anImp) {
     /* Fetch the config data and return the block reference. */
     void **config = pl_trampoline_data_ptr(anImp);
     return config[0];
@@ -99,7 +96,7 @@ static void *ex_imp_getBlock (IMP anImp) {
 /**
  * Deallocate the IMP trampoline.
  */
-static BOOL ex_imp_removeBlock (IMP anImp) {
+static BOOL patch_imp_removeBlock (IMP anImp) {
     /* Fetch the config data */
     void **config = pl_trampoline_data_ptr(anImp);
     struct Block_layout *bl = config[0];
@@ -120,64 +117,64 @@ static BOOL ex_imp_removeBlock (IMP anImp) {
 }
 
 /**
- * Runtime method patching support for NSObject. These are implemented via EXPatchMaster.
+ * Runtime method patching support for NSObject. These are implemented via PLPatchMaster.
  */
-@implementation NSObject (EXPatchMaster)
+@implementation NSObject (PLPatchMaster)
 
 /**
- * Patch the receiver's @a selector class method. The previously registered IMP may be fetched via EXPatchMaster::originalIMP:.
+ * Patch the receiver's @a selector class method. The previously registered IMP may be fetched via PLPatchMaster::originalIMP:.
  *
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  *
  * @return Returns YES on success, or NO if @a selector is not a defined @a cls method.
  */
-+ (BOOL) ex_patchSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
-    return [[EXPatchMaster master] patchClass: [self class] selector: selector replacementBlock: replacementBlock];
++ (BOOL) pl_patchSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
+    return [[PLPatchMaster master] patchClass: [self class] selector: selector replacementBlock: replacementBlock];
 
 }
 
 /**
- * Patch the receiver's @a selector instance method. The previously registered IMP may be fetched via EXPatchMaster::originalIMP:.
+ * Patch the receiver's @a selector instance method. The previously registered IMP may be fetched via PLPatchMaster::originalIMP:.
  *
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  *
  * @return Returns YES on success, or NO if @a selector is not a defined @a cls instance method.
  */
-+ (BOOL) ex_patchInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
-    return [[EXPatchMaster master] patchInstancesWithClass: [self class] selector: selector replacementBlock: replacementBlock];
++ (BOOL) pl_patchInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
+    return [[PLPatchMaster master] patchInstancesWithClass: [self class] selector: selector replacementBlock: replacementBlock];
 }
 
 /**
  * Patch the receiver's @a selector class method, once (and if) @a selector is registered by a loaded Mach-O image. The previously
- * registered IMP may be fetched via EXPatchMaster::originalIMP:.
+ * registered IMP may be fetched via PLPatchMaster::originalIMP:.
  *
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  *
  * @return Returns YES on success, or NO if @a selector is not a defined @a cls method.
  */
-+ (void) ex_patchFutureSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
-    return [[EXPatchMaster master] patchFutureClassWithName: NSStringFromClass([self class]) selector: selector replacementBlock: replacementBlock];
++ (void) pl_patchFutureSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
+    return [[PLPatchMaster master] patchFutureClassWithName: NSStringFromClass([self class]) selector: selector replacementBlock: replacementBlock];
 
 }
 
 /**
  * Patch the receiver's @a selector instance method, once (and if) @a selector is registered by a loaded Mach-O image.
- * The previously registered IMP may be fetched via EXPatchMaster::originalIMP:.
+ * The previously registered IMP may be fetched via PLPatchMaster::originalIMP:.
  *
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  *
  * @return Returns YES on success, or NO if @a selector is not a defined @a cls instance method.
  */
-+ (void) ex_patchFutureInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
-    return [[EXPatchMaster master] patchInstancesWithFutureClassName: NSStringFromClass([self class]) selector: selector replacementBlock: replacementBlock];
++ (void) pl_patchFutureInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock {
+    return [[PLPatchMaster master] patchInstancesWithFutureClassName: NSStringFromClass([self class]) selector: selector replacementBlock: replacementBlock];
 }
 
 @end
@@ -185,7 +182,7 @@ static BOOL ex_imp_removeBlock (IMP anImp) {
 /**
  * Manages application (and removal) of runtime patches. This class is thread-safe, and may be accessed from any thread.
  */
-@implementation EXPatchMaster {
+@implementation PLPatchMaster {
     /** Lock that must be held when mutating or accessing internal state */
     OSSpinLock _lock;
     
@@ -211,11 +208,11 @@ static BOOL ex_imp_removeBlock (IMP anImp) {
 /* Handle dyld image load notifications. These *should* be dispatched after the Objective-C callbacks have been
  * dispatched, but there's no gaurantee. It's possible, though unlikely, that this could break in a future release of Mac OS X. */
 static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_slide) {
-    [[NSNotificationCenter defaultCenter] postNotificationName: EXPatchMasterImageDidLoadNotification object: nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName: PLPatchMasterImageDidLoadNotification object: nil];
 }
 
 + (void) initialize {
-    if (([self class] != [EXPatchMaster class]))
+    if (([self class] != [PLPatchMaster class]))
         return;
 
     /* Register the shared dyld image add function */
@@ -227,10 +224,10 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
  * Return the default patch master.
  */
 + (instancetype) master {
-    static EXPatchMaster *m = nil;
+    static PLPatchMaster *m = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        m = [[EXPatchMaster alloc] init];;
+        m = [[PLPatchMaster alloc] init];;
     });
     
     return m;
@@ -248,7 +245,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
     _lock = OS_SPINLOCK_INIT;
     
     /* Watch for image loads */
-    [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(handleImageLoad:) name: EXPatchMasterImageDidLoadNotification object: nil];
+    [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(handleImageLoad:) name: PLPatchMasterImageDidLoadNotification object: nil];
 
     return self;
 }
@@ -257,7 +254,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
     [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
-// EXPatchMasterImageDidLoadNotification notification handler
+// PLPatchMasterImageDidLoadNotification notification handler
 - (void) handleImageLoad: (NSNotification *) notification {
     NSArray *blocks;
     OSSpinLockLock(&_lock); {
@@ -282,7 +279,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
  *
  * @param className The name of the class to patch. The class may not yet have been loaded.
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  */
 - (void) patchFutureClassWithName: (NSString *) className selector: (SEL) selector replacementBlock: (id) replacementBlock {
@@ -321,7 +318,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
  *
  * @param className The name of the class to patch. The class may not yet have been loaded.
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  */
 - (void) patchInstancesWithFutureClassName: (NSString *) className selector: (SEL) selector replacementBlock: (id) replacementBlock {
@@ -356,7 +353,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
  *
  * @param cls The class to patch.
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  *
  * @return Returns YES on success, or NO if @a selector is not a defined @a cls method.
@@ -368,7 +365,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
     
     /* Insert the new implementation */
     IMP oldIMP = method_getImplementation(m);
-    IMP newIMP = ex_imp_implementationWithBlock(replacementBlock, selector, oldIMP);
+    IMP newIMP = patch_imp_implementationWithBlock(replacementBlock, selector, oldIMP);
 
     if (!class_addMethod(object_getClass(cls), selector, newIMP, method_getTypeEncoding(m))) {
         /* Method already exists in subclass, we just need to swap the IMP */
@@ -392,7 +389,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
                 Method m = class_getClassMethod(cls, selector);
                 method_setImplementation(m, oldIMP);
             }
-            ex_imp_removeBlock(newIMP);
+            patch_imp_removeBlock(newIMP);
         } copy]];
     } OSSpinLockUnlock(&_lock);
 
@@ -404,7 +401,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
  *
  * @param cls The class to patch.
  * @param selector The selector to patch.
- * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to EXPatchIMP; the
+ * @param replacementBlock The new implementation for @a selector. The first parameter must be a pointer to PLPatchIMP; the
  * remainder of the parameters must match the original method.
  *
  * @return Returns YES on success, or NO if @a selector is not a defined @a cls instance method.
@@ -417,7 +414,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
 
         /* Insert the new implementation */
         IMP oldIMP = method_getImplementation(m);
-        IMP newIMP = ex_imp_implementationWithBlock(replacementBlock, selector, oldIMP);
+        IMP newIMP = patch_imp_implementationWithBlock(replacementBlock, selector, oldIMP);
         
         if (!class_addMethod(cls, selector, newIMP, method_getTypeEncoding(m))) {
             /* Method already exists in subclass, we just need to swap the IMP */
@@ -441,7 +438,7 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
                     Method m = class_getInstanceMethod(cls, selector);
                     method_setImplementation(m, oldIMP);
                 }
-                ex_imp_removeBlock(newIMP);
+                patch_imp_removeBlock(newIMP);
             } copy]];
         } OSSpinLockUnlock(&_lock);
     }

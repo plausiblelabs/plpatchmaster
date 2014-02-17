@@ -1,0 +1,649 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		052B1EE318B2896F00ACCE6B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EAC18B2883400ACCE6B /* Cocoa.framework */; };
+		052B1EF318B2896F00ACCE6B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EBD18B2883400ACCE6B /* XCTest.framework */; };
+		052B1EF418B2896F00ACCE6B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EAC18B2883400ACCE6B /* Cocoa.framework */; };
+		052B1EF718B2896F00ACCE6B /* PLPatchMaster.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
+		052B1EFF18B2896F00ACCE6B /* PLPatchMasterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */; };
+		052B1F0618B289F300ACCE6B /* PLBlockIMP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */; };
+		052B1F0818B28A0500ACCE6B /* PLBlockIMP.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */; };
+		052B1F1118B28AB700ACCE6B /* blockimp_x86_64_stret.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 052B1F0F18B28AB700ACCE6B /* blockimp_x86_64_stret.tramp */; };
+		052B1F1218B28AB700ACCE6B /* blockimp_x86_64.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 052B1F1018B28AB700ACCE6B /* blockimp_x86_64.tramp */; };
+		05A33A8818B28F110032E79F /* PLPatchMaster.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */; };
+		05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 05A33A8918B28F490032E79F /* PLBlockLayout.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		052B1F1418B28AF700ACCE6B /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.tramp";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"${DERIVED_FILE_DIR}/${CURRENT_ARCH}/${INPUT_FILE_BASE}.h",
+				"${DERIVED_FILE_DIR}/${CURRENT_ARCH}/${INPUT_FILE_BASE}_config.c",
+				"${DERIVED_FILE_DIR}/${CURRENT_ARCH}/${INPUT_FILE_BASE}.s",
+			);
+			script = "GENTRAMP=\"${SRCROOT}/Dependencies/PLBlockIMP/Mac OS X Runtime/PLBlockIMP.framework/Versions/Current/Resources/gentramp.sh\"\nOUTPUT_DIR=\"${DERIVED_FILE_DIR}/${CURRENT_ARCH}/\"\nmkdir -p \"${OUTPUT_DIR}\"\n\npushd \"$(dirname \"${INPUT_FILE_PATH}\")\" >/dev/null\n\"${GENTRAMP}\" \"${INPUT_FILE_PATH}\" \"${CURRENT_ARCH}\" \"${PLATFORM_NAME}\" \"${INPUT_FILE_BASE}\" \"${OUTPUT_DIR}\"\npopd >/dev/null";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXContainerItemProxy section */
+		052B1EF518B2896F00ACCE6B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 052B1EE118B2896F00ACCE6B;
+			remoteInfo = PLPatchMaster;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		052B1F0718B289F900ACCE6B /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				052B1F0818B28A0500ACCE6B /* PLBlockIMP.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		052B1EA418B287C000ACCE6B /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		052B1EA518B287C000ACCE6B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		052B1EAC18B2883400ACCE6B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		052B1EAF18B2883400ACCE6B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		052B1EB018B2883400ACCE6B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		052B1EB118B2883400ACCE6B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		052B1EBD18B2883400ACCE6B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLPatchMaster.h; sourceTree = "<group>"; };
+		052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLPatchMaster.m; sourceTree = "<group>"; };
+		052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlockIMP.framework; sourceTree = "<group>"; };
+		052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlockIMP.framework; sourceTree = "<group>"; };
+		052B1EDB18B2890D00ACCE6B /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PLPatchMaster.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		052B1EF218B2896F00ACCE6B /* PLPatchMasterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PLPatchMasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PLPatchMasterTests.m; sourceTree = "<group>"; };
+		052B1F0A18B28A5B00ACCE6B /* PLPatchMaster-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PLPatchMaster-Info.plist"; sourceTree = "<group>"; };
+		052B1F0F18B28AB700ACCE6B /* blockimp_x86_64_stret.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = blockimp_x86_64_stret.tramp; sourceTree = "<group>"; };
+		052B1F1018B28AB700ACCE6B /* blockimp_x86_64.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = blockimp_x86_64.tramp; sourceTree = "<group>"; };
+		05A33A8918B28F490032E79F /* PLBlockLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLBlockLayout.h; sourceTree = "<group>"; };
+		05A33A8B18B2902E0032E79F /* PLPatchMasterTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PLPatchMasterTests-Info.plist"; sourceTree = "<group>"; };
+		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		052B1EDE18B2896F00ACCE6B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				052B1EE318B2896F00ACCE6B /* Cocoa.framework in Frameworks */,
+				052B1F0618B289F300ACCE6B /* PLBlockIMP.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		052B1EEF18B2896F00ACCE6B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				052B1EF718B2896F00ACCE6B /* PLPatchMaster.framework in Frameworks */,
+				052B1EF418B2896F00ACCE6B /* Cocoa.framework in Frameworks */,
+				052B1EF318B2896F00ACCE6B /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */,
+				052B1EF218B2896F00ACCE6B /* PLPatchMasterTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		052B1EAB18B2883400ACCE6B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EAC18B2883400ACCE6B /* Cocoa.framework */,
+				052B1EBD18B2883400ACCE6B /* XCTest.framework */,
+				052B1EAE18B2883400ACCE6B /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		052B1EAE18B2883400ACCE6B /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EAF18B2883400ACCE6B /* Foundation.framework */,
+				052B1EB018B2883400ACCE6B /* CoreData.framework */,
+				052B1EB118B2883400ACCE6B /* AppKit.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		052B1ED518B2890D00ACCE6B /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED618B2890D00ACCE6B /* PLBlockIMP */,
+				052B1EDB18B2890D00ACCE6B /* README.txt */,
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
+		052B1ED618B2890D00ACCE6B /* PLBlockIMP */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED718B2890D00ACCE6B /* iPhone Runtime */,
+				052B1ED918B2890D00ACCE6B /* Mac OS X Runtime */,
+			);
+			path = PLBlockIMP;
+			sourceTree = "<group>";
+		};
+		052B1ED718B2890D00ACCE6B /* iPhone Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */,
+			);
+			path = "iPhone Runtime";
+			sourceTree = "<group>";
+		};
+		052B1ED918B2890D00ACCE6B /* Mac OS X Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */,
+			);
+			path = "Mac OS X Runtime";
+			sourceTree = "<group>";
+		};
+		052B1EF818B2896F00ACCE6B /* PLPatchMasterTests */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */,
+				052B1EF918B2896F00ACCE6B /* Supporting Files */,
+			);
+			path = PLPatchMasterTests;
+			sourceTree = "<group>";
+		};
+		052B1EF918B2896F00ACCE6B /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				05A33A8B18B2902E0032E79F /* PLPatchMasterTests-Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		052B1F0918B28A5000ACCE6B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				052B1F0A18B28A5B00ACCE6B /* PLPatchMaster-Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		052B1F1318B28ABA00ACCE6B /* x86-64 */ = {
+			isa = PBXGroup;
+			children = (
+				052B1F0F18B28AB700ACCE6B /* blockimp_x86_64_stret.tramp */,
+				052B1F1018B28AB700ACCE6B /* blockimp_x86_64.tramp */,
+			);
+			name = "x86-64";
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* plblockimp */ = {
+			isa = PBXGroup;
+			children = (
+				08FB77AEFE84172EC02AAC07 /* PLPatchMaster */,
+				052B1ED518B2890D00ACCE6B /* Dependencies */,
+				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				052B1EF818B2896F00ACCE6B /* PLPatchMasterTests */,
+				052B1EAB18B2883400ACCE6B /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+				052B1EA418B287C000ACCE6B /* LICENSE */,
+				052B1EA518B287C000ACCE6B /* README.md */,
+			);
+			name = plblockimp;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */,
+				1058C7B2FEA5585E11CA2CBB /* Other Frameworks */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* PLPatchMaster */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */,
+				052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */,
+				05A33A8918B28F490032E79F /* PLBlockLayout.h */,
+				052B1F1318B28ABA00ACCE6B /* x86-64 */,
+				052B1F0918B28A5000ACCE6B /* Resources */,
+			);
+			path = PLPatchMaster;
+			sourceTree = "<group>";
+		};
+		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7B2FEA5585E11CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0867D6A5FE840307C02AAC07 /* AppKit.framework */,
+				D2F7E79907B2D74100F64583 /* CoreData.framework */,
+				0867D69BFE84028FC02AAC07 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		052B1EDF18B2896F00ACCE6B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		052B1EE118B2896F00ACCE6B /* PLPatchMaster */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 052B1F0018B2896F00ACCE6B /* Build configuration list for PBXNativeTarget "PLPatchMaster" */;
+			buildPhases = (
+				052B1EDD18B2896F00ACCE6B /* Sources */,
+				052B1EDE18B2896F00ACCE6B /* Frameworks */,
+				052B1EDF18B2896F00ACCE6B /* Headers */,
+				052B1EE018B2896F00ACCE6B /* Resources */,
+				052B1F0718B289F900ACCE6B /* Copy Frameworks */,
+			);
+			buildRules = (
+				052B1F1418B28AF700ACCE6B /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = PLPatchMaster;
+			productName = PLPatchMaster;
+			productReference = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		052B1EF118B2896F00ACCE6B /* PLPatchMasterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 052B1F0318B2896F00ACCE6B /* Build configuration list for PBXNativeTarget "PLPatchMasterTests" */;
+			buildPhases = (
+				052B1EEE18B2896F00ACCE6B /* Sources */,
+				052B1EEF18B2896F00ACCE6B /* Frameworks */,
+				052B1EF018B2896F00ACCE6B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				052B1EF618B2896F00ACCE6B /* PBXTargetDependency */,
+			);
+			name = PLPatchMasterTests;
+			productName = PLPatchMasterTests;
+			productReference = 052B1EF218B2896F00ACCE6B /* PLPatchMasterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+				TargetAttributes = {
+					052B1EF118B2896F00ACCE6B = {
+						TestTargetID = 052B1EE118B2896F00ACCE6B;
+					};
+				};
+			};
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "PLPatchMaster" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				en,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* plblockimp */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				052B1EE118B2896F00ACCE6B /* PLPatchMaster */,
+				052B1EF118B2896F00ACCE6B /* PLPatchMasterTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		052B1EE018B2896F00ACCE6B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		052B1EF018B2896F00ACCE6B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		052B1EDD18B2896F00ACCE6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				05A33A8818B28F110032E79F /* PLPatchMaster.m in Sources */,
+				052B1F1218B28AB700ACCE6B /* blockimp_x86_64.tramp in Sources */,
+				052B1F1118B28AB700ACCE6B /* blockimp_x86_64_stret.tramp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		052B1EEE18B2896F00ACCE6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				052B1EFF18B2896F00ACCE6B /* PLPatchMasterTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		052B1EF618B2896F00ACCE6B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 052B1EE118B2896F00ACCE6B /* PLPatchMaster */;
+			targetProxy = 052B1EF518B2896F00ACCE6B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		052B1F0118B2896F00ACCE6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/landonf/Documents/Code/Plausible/plpatchmaster/Dependencies/PLBlockIMP/Mac\\ OS\\ X\\ Runtime",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "PLPatchMaster/PLPatchMaster-Info.plist";
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		052B1F0218B2896F00ACCE6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/landonf/Documents/Code/Plausible/plpatchmaster/Dependencies/PLBlockIMP/Mac\\ OS\\ X\\ Runtime",
+				);
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "PLPatchMaster/PLPatchMaster-Info.plist";
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		052B1F0418B2896F00ACCE6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/PLPatchMaster.framework/Versions/A/PLPatchMaster";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "PLPatchMasterTests/PLPatchMasterTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		052B1F0518B2896F00ACCE6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/PLPatchMaster.framework/Versions/A/PLPatchMaster";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "PLPatchMasterTests/PLPatchMasterTests-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+		1DEB91B208733DA50010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CURRENT_PROJECT_VERSION = "1.0-beta1";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DPL_BLOCKIMP_PRIVATE";
+				SDKROOT = macosx;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Werror",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Debug;
+		};
+		1DEB91B308733DA50010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CURRENT_PROJECT_VERSION = "1.0-beta1";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				OTHER_CFLAGS = "-DPL_BLOCKIMP_PRIVATE";
+				SDKROOT = macosx;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Werror",
+					"-Wno-unused-parameter",
+				);
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		052B1F0018B2896F00ACCE6B /* Build configuration list for PBXNativeTarget "PLPatchMaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				052B1F0118B2896F00ACCE6B /* Debug */,
+				052B1F0218B2896F00ACCE6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		052B1F0318B2896F00ACCE6B /* Build configuration list for PBXNativeTarget "PLPatchMasterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				052B1F0418B2896F00ACCE6B /* Debug */,
+				052B1F0518B2896F00ACCE6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "PLPatchMaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91B208733DA50010E9CD /* Debug */,
+				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}

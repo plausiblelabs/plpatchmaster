@@ -31,7 +31,7 @@
 /**
  * IMP patch state, as passed to a replacement block.
  */
-typedef struct EXPatchIMP {
+typedef struct PLPatchIMP {
     /** The original message target. */
     void *self;
     
@@ -40,28 +40,35 @@ typedef struct EXPatchIMP {
 
     /** The original SEL. */
     SEL selector;
-} EXPatchIMP;
+} PLPatchIMP;
 
 /**
- * Forward a message received by a EXPatchMaster patch block.
+ * Forward a message received by a PLPatchMaster patch block.
  *
- * @param patch The EXPatchIMP patch argument.
+ * @param patch The PLPatchIMP patch argument.
  * @param func_type The function type to which the IMP should be cast.
  * @param ... All method arguments (Do not include self or _cmd).
  */
-#define EXPatchIMPFoward(patch, func_type, ...) ((func_type)patch->origIMP)((__bridge id) patch->self, patch->selector, ##__VA_ARGS__)
+#define PLPatchIMPFoward(patch, func_type, ...) ((func_type)patch->origIMP)((__bridge id) patch->self, patch->selector, ##__VA_ARGS__)
 
-@interface NSObject (EXPatchMaster)
+/**
+ * Return the original 'self' instance from a PLPatchMaster patch block.
+ *
+ * @param patch The PLPatchIMP patch argument.
+ */
+#define PLPatchGetSelf(patch) ((__bridge id) patch->self)
 
-+ (BOOL) ex_patchSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
-+ (BOOL) ex_patchInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
+@interface NSObject (PLPatchMaster)
 
-+ (void) ex_patchFutureSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
-+ (void) ex_patchFutureInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
++ (BOOL) pl_patchSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
++ (BOOL) pl_patchInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
+
++ (void) pl_patchFutureSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
++ (void) pl_patchFutureInstanceSelector: (SEL) selector withReplacementBlock: (id) replacementBlock;
 
 @end
 
-@interface EXPatchMaster : NSObject
+@interface PLPatchMaster : NSObject
 
 + (instancetype) master;
 
