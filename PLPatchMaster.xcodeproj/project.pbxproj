@@ -201,8 +201,8 @@
 		052B1F1318B28ABA00ACCE6B /* x86-64 */ = {
 			isa = PBXGroup;
 			children = (
-				052B1F0F18B28AB700ACCE6B /* blockimp_x86_64_stret.tramp */,
 				052B1F1018B28AB700ACCE6B /* blockimp_x86_64.tramp */,
+				052B1F0F18B28AB700ACCE6B /* blockimp_x86_64_stret.tramp */,
 			);
 			name = "x86-64";
 			sourceTree = "<group>";

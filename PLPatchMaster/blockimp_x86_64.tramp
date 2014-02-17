@@ -29,11 +29,11 @@
 check_architecture () {
     case $1 in
         x86_64)
-        return 1
-        ;;
-    *)
-        return 0
-        ;;
+            return 1
+            ;;
+        *)
+            return 0
+            ;;
     esac
 }
 
@@ -55,7 +55,7 @@ asm << 'EOF'
         // Set up our function stack
         pushq  %rbp
         movq   %rsp, %rbp
-        subq   $32, %rsp // Two pointer struct, plus alignment
+        subq   $32, %rsp // Three pointer struct, plus alignment
 
         // Insert 'self' in the first struct position
         movq   %rdi, (%rsp)
