@@ -6,10 +6,10 @@
 //
 //
 
-#import <XCTest/XCTest.h>
+#import <SenTestingKit/SenTestingKit.h>
 #import "PLPatchMaster.h"
 
-@interface PLPatchMasterTests : XCTestCase
+@interface PLPatchMasterTests : SenTestCase
 
 @end
 
@@ -19,17 +19,47 @@
     return expected;
 }
 
-- (void) testExample {
-    [PLPatchMaster class];
-    
+- (void) testBasic {
     [PLPatchMasterTests pl_patchInstanceSelector: @selector(patchTargetWithArgument:) withReplacementBlock: ^(PLPatchIMP *patch, NSString *expected) {
         NSObject *obj = PLPatchGetSelf(patch);
-        XCTAssert(obj == self);
+        STAssertTrue(obj == self, @"Incorrect 'self'");
         NSString *originalResult = PLPatchIMPFoward(patch, NSString *(*)(id, SEL, NSString *), expected);
         return [NSString stringWithFormat: @"[PATCHED]: %@", originalResult];
     }];
     
-    XCTAssertEqualObjects(@"[PATCHED]: Result", [self patchTargetWithArgument: @"Result"]);
+    STAssertEqualObjects(@"[PATCHED]: Result", [self patchTargetWithArgument: @"Result"], @"Incorrect value returned");
+}
+
+struct stret_return {
+    char value[30];
+};
+
+- (struct stret_return) stretPatchTargetWithArgument: (NSString *) expected {
+    struct stret_return retval;
+    const char *cstr = [expected UTF8String];
+    
+    assert(strlen(cstr) < sizeof(retval.value));
+    strlcpy(retval.value, cstr, sizeof(retval.value));
+
+    return retval;
+}
+
+- (void) testStret {
+    [PLPatchMasterTests pl_patchInstanceSelector: @selector(stretPatchTargetWithArgument:) withReplacementBlock: ^(PLPatchIMP *patch, NSString *expected) {
+        NSObject *obj = PLPatchGetSelf(patch);
+        STAssertTrue(obj == self, @"Incorrect 'self'");
+
+        struct stret_return retval = PLPatchIMPFoward(patch, struct stret_return (*)(id, SEL, NSString *), expected);
+        retval.value[0] = 'j';
+        return retval;
+    }];
+
+    struct stret_return ret;
+    ret.value[0] = 'f';
+    ret.value[1] = '\0';
+
+    ret = [self stretPatchTargetWithArgument: @"hello"];
+    STAssertTrue(strcmp(ret.value, "jello") == 0, @"Incorrect value returned: '%s'", ret.value);
 }
 
 @end
