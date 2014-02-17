@@ -27,7 +27,7 @@ Use a block to swizzle -[UIWindow sendEvent:]:
             return;
 
         // Forward everything else
-        return PLPatchIMPFoward(patch, void (*)(id, SEL, UIEvent *));
+        return PLPatchIMPFoward(patch, void (*)(id, SEL, UIEvent *), event);
     }];
 
 Advanced Use
