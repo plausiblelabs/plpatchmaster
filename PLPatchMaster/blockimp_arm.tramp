@@ -57,14 +57,37 @@ asm << 'EOF'
         sub r12, #0x8
         sub r12, #0x1000
 
-        # Set the 'self' argument as the third argument
-        mov r2, r1
-        
-        # Load the block pointer as the second argument
-        ldr r1, [r12]
+        # Set up our function stack
+        push    {r7, lr}
+        mov     r7, sp
 
-        # Jump to the block pointer
-        ldr pc, [r1, #0xc]
+        # Three pointer struct
+        sub     sp, sp, #0x10
+
+        # Insert 'self' in the first struct position
+        str     r0, [sp]
+
+        # Load the original IMP from the config page, and move to the second struct position
+        ldr     r0, [r12, #8]
+        str     r0, [sp, #4]
+
+        # Load the original SEL from the config page, and move to the third struct position
+        ldr     r0, [r12, #12]
+        str     r0, [sp, #8]
+
+        # Move our struct to the second parameter, overwriting IMP
+        mov     r1, sp
+
+        # Load the block reference from the config page, and move to the first parameter
+        ldr     r0, [r12]
+
+        # Call the block fptr
+        ldr     r12, [r0, #0xc]
+        blx     r12
+
+        # Finished!
+        mov     sp, r7
+        pop     {r7, pc}
 EOF
 }
 
@@ -74,5 +97,7 @@ asm << 'EOF'
     # Save pc+8, then jump to the shared prefix implementation
     mov r12, pc
     b _block_tramp_dispatch;
+    # align to 32 bytes (to fit the size of our config entries)
+    .align 5
 EOF
 }
