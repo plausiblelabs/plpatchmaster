@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		052B1EA418B287C000ACCE6B /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		052B1EA518B287C000ACCE6B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		052B1EAC18B2883400ACCE6B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		052B1EAF18B2883400ACCE6B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		052B1EB018B2883400ACCE6B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		052B1EB118B2883400ACCE6B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		052B1EBD18B2883400ACCE6B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		052B1ED118B2887A00ACCE6B /* EXPatchMaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXPatchMaster.h; sourceTree = "<group>"; };
+		052B1ED218B2887A00ACCE6B /* EXPatchMaster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXPatchMaster.m; sourceTree = "<group>"; };
+		052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlockIMP.framework; sourceTree = "<group>"; };
+		052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlockIMP.framework; sourceTree = "<group>"; };
+		052B1EDB18B2890D00ACCE6B /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -19,6 +31,60 @@
 			children = (
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		052B1EAB18B2883400ACCE6B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EAC18B2883400ACCE6B /* Cocoa.framework */,
+				052B1EBD18B2883400ACCE6B /* XCTest.framework */,
+				052B1EAE18B2883400ACCE6B /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		052B1EAE18B2883400ACCE6B /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EAF18B2883400ACCE6B /* Foundation.framework */,
+				052B1EB018B2883400ACCE6B /* CoreData.framework */,
+				052B1EB118B2883400ACCE6B /* AppKit.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		052B1ED518B2890D00ACCE6B /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED618B2890D00ACCE6B /* PLBlockIMP */,
+				052B1EDB18B2890D00ACCE6B /* README.txt */,
+			);
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
+		052B1ED618B2890D00ACCE6B /* PLBlockIMP */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED718B2890D00ACCE6B /* iPhone Runtime */,
+				052B1ED918B2890D00ACCE6B /* Mac OS X Runtime */,
+			);
+			path = PLBlockIMP;
+			sourceTree = "<group>";
+		};
+		052B1ED718B2890D00ACCE6B /* iPhone Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */,
+			);
+			path = "iPhone Runtime";
+			sourceTree = "<group>";
+		};
+		052B1ED918B2890D00ACCE6B /* Mac OS X Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */,
+			);
+			path = "Mac OS X Runtime";
 			sourceTree = "<group>";
 		};
 		05ACD0001802363F009B0FB9 /* ARM64 */ = {
@@ -53,11 +119,15 @@
 		0867D691FE84028FC02AAC07 /* plblockimp */ = {
 			isa = PBXGroup;
 			children = (
-				08FB77AEFE84172EC02AAC07 /* Source */,
+				08FB77AEFE84172EC02AAC07 /* PLPatchMaster */,
+				052B1ED518B2890D00ACCE6B /* Dependencies */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				052B1EAB18B2883400ACCE6B /* Frameworks */,
 				034768DFFF38A50411DB9C8B /* Products */,
+				052B1EA418B287C000ACCE6B /* LICENSE */,
+				052B1EA518B287C000ACCE6B /* README.md */,
 			);
 			name = plblockimp;
 			sourceTree = "<group>";
@@ -78,15 +148,17 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		08FB77AEFE84172EC02AAC07 /* Source */ = {
+		08FB77AEFE84172EC02AAC07 /* PLPatchMaster */ = {
 			isa = PBXGroup;
 			children = (
+				052B1ED118B2887A00ACCE6B /* EXPatchMaster.h */,
+				052B1ED218B2887A00ACCE6B /* EXPatchMaster.m */,
 				05F569FE1352CA03003D62C7 /* ARM */,
 				05ACD0001802363F009B0FB9 /* ARM64 */,
 				05F565F513526F46003D62C7 /* x86_32 */,
 				05F56B121352D981003D62C7 /* x86_64 */,
 			);
-			path = Source;
+			path = PLPatchMaster;
 			sourceTree = "<group>";
 		};
 		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
@@ -131,6 +203,7 @@
 				Japanese,
 				French,
 				German,
+				en,
 			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* plblockimp */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
