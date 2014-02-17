@@ -47,13 +47,53 @@ PAGE_NAME=pl_blockimp_patch_table_page
 trampoline_prefix () {
 asm << 'EOF'
     _block_tramp_dispatch:
-    // TODO
+    // trampoline address+8 is in lr -- calculate our config page address
+    sub x12, lr, #0x8
+    sub x12, x12, #0x4000
+
+    // restore the link register
+    mov lr, x13
+
+    // Set up our function stack
+    stp     fp, lr, [sp, #-16]!
+    add     fp, sp, 0
+    sub     sp, sp, #32 // Three pointer struct
+
+    // Insert 'self' in the first struct position
+    str     x0, [sp]
+
+    // Load the original IMP from the config page, and move to the second struct position
+    ldr     x0, [x12, #16]
+    str     x0, [sp, #8]
+
+    // Load the original SEL from the config page, and move to the third struct position
+    ldr     x0, [x12, #24]
+    str     x0, [sp, #16]
+
+    // Move our struct to the second parameter, overwriting IMP
+    mov     x1, sp
+
+    // Load the block reference from the config page, and move to the first parameter
+    ldr     x0, [x12]
+
+    // Call the block fptr
+    ldr     x13, [x0, #16]
+    blr     x13
+
+    // Finished!
+    add     sp, fp, 0
+    ldp     fp, lr, [sp], #16
+    ret     lr
 EOF
 }
 
 # Generate a single trampoline
 trampoline () {
 asm << 'EOF'
-    // TODO
+    # Save lr, then jump to the shared prefix implementation
+    mov x13, lr
+    bl _block_tramp_dispatch;
+    // align to 32 bytes (to fit the size of our config entries)
+    .align 5
 EOF
 }

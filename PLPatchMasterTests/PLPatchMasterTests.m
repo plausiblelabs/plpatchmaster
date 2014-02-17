@@ -15,21 +15,21 @@
 
 @implementation PLPatchMasterTests
 
-- (NSString *) patchTarget {
-    return @"Result";
+- (NSString *) patchTargetWithArgument: (NSString *) expected {
+    return expected;
 }
 
 - (void) testExample {
     [PLPatchMaster class];
     
-    [PLPatchMasterTests pl_patchInstanceSelector: @selector(patchTarget) withReplacementBlock: ^(PLPatchIMP *patch) {
+    [PLPatchMasterTests pl_patchInstanceSelector: @selector(patchTargetWithArgument:) withReplacementBlock: ^(PLPatchIMP *patch, NSString *expected) {
         NSObject *obj = PLPatchGetSelf(patch);
         XCTAssert(obj == self);
-        NSString *originalResult = PLPatchIMPFoward(patch, NSString *(*)(id, SEL));
+        NSString *originalResult = PLPatchIMPFoward(patch, NSString *(*)(id, SEL, NSString *), expected);
         return [NSString stringWithFormat: @"[PATCHED]: %@", originalResult];
     }];
     
-    XCTAssertEqualObjects(@"[PATCHED]: Result", [self patchTarget]);
+    XCTAssertEqualObjects(@"[PATCHED]: Result", [self patchTargetWithArgument: @"Result"]);
 }
 
 @end

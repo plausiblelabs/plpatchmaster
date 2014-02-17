@@ -6,7 +6,7 @@ PLBlockIMP
       including an independent implementation of imp_implementationWithBlock().
 
     Version:
-      PLBlockIMP 1.0-beta6 built from https://github.com/plausiblelabs/plblockimp
+      PLBlockIMP 1.0-beta7 built from https://github.com/plausiblelabs/plblockimp
 
     License:
       MIT
