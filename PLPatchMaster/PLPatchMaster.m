@@ -37,11 +37,29 @@
 
 #import <objc/runtime.h>
 
+#import <libkern/OSAtomic.h>
+
 #ifdef __x86_64__
 #include "blockimp_x86_64.h"
 #include "blockimp_x86_64_stret.h"
+#elif defined(__arm64__)
+#include "blockimp_arm64.h"
+#elif defined(__arm__)
+#include "blockimp_arm.h"
+#include "blockimp_arm_stret.h"
 #else
 #error Unsupported Architecture
+#endif
+
+/* The ARM64 ABI does not require (or support) the _stret objc_msgSend variant */
+#ifdef __arm64__
+#define STRET_TABLE_REQUIRED 0
+#define STRET_TABLE_CONFIG pl_blockimp_patch_table_page_config
+#define STRET_TABLE blockimp_table
+#else
+#define STRET_TABLE_REQUIRED 1
+#define STRET_TABLE_CONFIG pl_blockimp_patch_table_page_config
+#define STRET_TABLE blockimp_table_stret
 #endif
 
 /** Notification sent (synchronously) when an image is added. */
@@ -50,11 +68,13 @@ static NSString *PLPatchMasterImageDidLoadNotification = @"PLPatchMasterImageDid
 /* Global lock for our mutable trampoline state. Must be held when accessing the trampoline tables. */
 static pthread_mutex_t blockimp_lock = PTHREAD_MUTEX_INITIALIZER;
 
-/* Trampoline tables for objc_msgSend_stret() dispatch. */
-static pl_trampoline_table *blockimp_table_stret = NULL;
-
 /* Trampoline tables for objc_msgSend() dispatch. */
 static pl_trampoline_table *blockimp_table = NULL;
+
+#if STRET_TABLE_REQUIRED
+/* Trampoline tables for objc_msgSend_stret() dispatch. */
+static pl_trampoline_table *blockimp_table_stret = NULL;
+#endif /* STRET_TABLE_REQUIRED */
 
 /**
  * Create a new PLPatchIMP block IMP trampoline.
@@ -64,7 +84,7 @@ static IMP patch_imp_implementationWithBlock (id block, SEL selector, IMP origIM
     pl_trampoline *tramp;
     struct Block_layout *bl = (__bridge struct Block_layout *) block;
     if (bl->flags & BLOCK_USE_STRET) {
-        tramp = pl_trampoline_alloc(&pl_blockimp_patch_table_stret_page_config, &blockimp_lock, &blockimp_table_stret);
+        tramp = pl_trampoline_alloc(&STRET_TABLE_CONFIG, &blockimp_lock, &STRET_TABLE);
     } else {
         tramp = pl_trampoline_alloc(&pl_blockimp_patch_table_page_config, &blockimp_lock, &blockimp_table);
     }
@@ -104,7 +124,7 @@ static BOOL patch_imp_removeBlock (IMP anImp) {
     
     /* Drop the trampoline allocation */
     if (bl->flags & BLOCK_USE_STRET) {
-        pl_trampoline_free(&blockimp_lock, &blockimp_table_stret, tramp);
+        pl_trampoline_free(&blockimp_lock, &STRET_TABLE, tramp);
     } else {
         pl_trampoline_free(&blockimp_lock, &blockimp_table, tramp);
     }

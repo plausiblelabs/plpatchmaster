@@ -28,7 +28,7 @@
 # Supported architectures
 check_architecture () {
     case $1 in
-        x86_64)
+        arm64)
             return 1
             ;;
         *)
@@ -38,58 +38,22 @@ check_architecture () {
 }
 
 # Page size
-PAGE_SIZE="4096"
+PAGE_SIZE="16384"
 
 # The name of this page
-PAGE_NAME=pl_blockimp_patch_table_stret_page
+PAGE_NAME=pl_blockimp_patch_table_page
 
 # Prefix to be placed at the start of the trampoline page
 trampoline_prefix () {
 asm << 'EOF'
     _block_tramp_dispatch:
-        pop    %r11
-        and    $0xffffffffffffffe0, %r11 // truncate to the trampoline start (each is 8 bytes)
-        sub    $0x1000, %r11 // load the config location
-
-        // Set up our function stack
-        pushq  %rbp
-        movq   %rsp, %rbp
-        subq   $32, %rsp // Three pointer struct, plus alignment
-
-        // Insert 'self' in the first struct position
-        movq   %rsi, (%rsp)
-
-        // Load the original IMP from the config page, and move to the second struct position
-        movq   0x10(%r11), %rdi
-        movq   %rdi, 0x8(%rsp)
-
-        // Load the original SEL from the config page, and move to the third struct position
-        movq   0x18(%r11), %rdi
-        movq   %rdi, 0x10(%rsp)
-
-        // Move our struct to the third parameter, overwriting IMP
-        movq   %rsp, %rdx
-        
-        // Load the block reference from the config page, and move to the second parameter
-        movq   (%r11), %rsi
-
-        // Jump to the block fptr
-        callq *0x10(%rsi)
-
-        // Finished!
-        addq    $32, %rsp
-        popq    %rbp
-        ret
-
-        .align 5 // align the trampolines at 32 bytes (required to fit the config pages)
+    // TODO
 EOF
 }
 
 # Generate a single trampoline
 trampoline () {
 asm << 'EOF'
-    // Call into the dispatcher, placing our return address on the stack. 
-    call _block_tramp_dispatch # 5 bytes
-    .align 5 // align the trampolines at 32 bytes (required to fit the config pages)
+    // TODO
 EOF
 }

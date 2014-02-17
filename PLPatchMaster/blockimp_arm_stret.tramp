@@ -28,7 +28,13 @@
 # Supported architectures
 check_architecture () {
     case $1 in
-        x86_64)
+        armv6)
+            return 1
+            ;;
+        armv7)
+            return 1
+            ;;
+        armv7s)
             return 1
             ;;
         *)
@@ -47,49 +53,26 @@ PAGE_NAME=pl_blockimp_patch_table_stret_page
 trampoline_prefix () {
 asm << 'EOF'
     _block_tramp_dispatch:
-        pop    %r11
-        and    $0xffffffffffffffe0, %r11 // truncate to the trampoline start (each is 8 bytes)
-        sub    $0x1000, %r11 // load the config location
+        # trampoline address+8 is in r12 -- calculate our config page address
+        sub r12, #0x8
+        sub r12, #0x1000
 
-        // Set up our function stack
-        pushq  %rbp
-        movq   %rsp, %rbp
-        subq   $32, %rsp // Three pointer struct, plus alignment
-
-        // Insert 'self' in the first struct position
-        movq   %rsi, (%rsp)
-
-        // Load the original IMP from the config page, and move to the second struct position
-        movq   0x10(%r11), %rdi
-        movq   %rdi, 0x8(%rsp)
-
-        // Load the original SEL from the config page, and move to the third struct position
-        movq   0x18(%r11), %rdi
-        movq   %rdi, 0x10(%rsp)
-
-        // Move our struct to the third parameter, overwriting IMP
-        movq   %rsp, %rdx
+        # Set the 'self' argument as the third argument
+        mov r2, r1
         
-        // Load the block reference from the config page, and move to the second parameter
-        movq   (%r11), %rsi
+        # Load the block pointer as the second argument
+        ldr r1, [r12]
 
-        // Jump to the block fptr
-        callq *0x10(%rsi)
-
-        // Finished!
-        addq    $32, %rsp
-        popq    %rbp
-        ret
-
-        .align 5 // align the trampolines at 32 bytes (required to fit the config pages)
+        # Jump to the block pointer
+        ldr pc, [r1, #0xc]
 EOF
 }
 
 # Generate a single trampoline
 trampoline () {
 asm << 'EOF'
-    // Call into the dispatcher, placing our return address on the stack. 
-    call _block_tramp_dispatch # 5 bytes
-    .align 5 // align the trampolines at 32 bytes (required to fit the config pages)
+    # Save pc+8, then jump to the shared prefix implementation
+    mov r12, pc
+    b _block_tramp_dispatch;
 EOF
 }
