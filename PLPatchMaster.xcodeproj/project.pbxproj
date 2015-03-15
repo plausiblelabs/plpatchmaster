@@ -38,6 +38,7 @@
 		05E8887B18B2B1840048AD6B /* PLPatchMasterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */; };
 		05E8887C18B2B1890048AD6B /* PLPatchMaster.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
 		05E8887E18B2B19F0048AD6B /* PLPatchMaster.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
+		05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -435,6 +436,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */,
 				05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
