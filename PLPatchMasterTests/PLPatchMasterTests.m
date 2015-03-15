@@ -6,10 +6,10 @@
 //
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PLPatchMaster.h"
 
-@interface PLPatchMasterTests : SenTestCase
+@interface PLPatchMasterTests : XCTestCase
 
 @end
 
@@ -22,12 +22,12 @@
 - (void) testBasic {
     [PLPatchMasterTests pl_patchInstanceSelector: @selector(patchTargetWithArgument:) withReplacementBlock: ^(PLPatchIMP *patch, NSString *expected) {
         NSObject *obj = PLPatchGetSelf(patch);
-        STAssertTrue(obj == self, @"Incorrect 'self'");
+        XCTAssertTrue(obj == self, @"Incorrect 'self'");
         NSString *originalResult = PLPatchIMPFoward(patch, NSString *(*)(id, SEL, NSString *), expected);
         return [NSString stringWithFormat: @"[PATCHED]: %@", originalResult];
     }];
     
-    STAssertEqualObjects(@"[PATCHED]: Result", [self patchTargetWithArgument: @"Result"], @"Incorrect value returned");
+    XCTAssertEqualObjects(@"[PATCHED]: Result", [self patchTargetWithArgument: @"Result"], @"Incorrect value returned");
 }
 
 struct stret_return {
@@ -47,7 +47,7 @@ struct stret_return {
 - (void) testStret {
     [PLPatchMasterTests pl_patchInstanceSelector: @selector(stretPatchTargetWithArgument:) withReplacementBlock: ^(PLPatchIMP *patch, NSString *expected) {
         NSObject *obj = PLPatchGetSelf(patch);
-        STAssertTrue(obj == self, @"Incorrect 'self'");
+        XCTAssertTrue(obj == self, @"Incorrect 'self'");
 
         struct stret_return retval = PLPatchIMPFoward(patch, struct stret_return (*)(id, SEL, NSString *), expected);
         retval.value[0] = 'j';
@@ -59,7 +59,7 @@ struct stret_return {
     ret.value[1] = '\0';
 
     ret = [self stretPatchTargetWithArgument: @"hello"];
-    STAssertTrue(strcmp(ret.value, "jello") == 0, @"Incorrect value returned: '%s'", ret.value);
+    XCTAssertTrue(strcmp(ret.value, "jello") == 0, @"Incorrect value returned: '%s'", ret.value);
 }
 
 @end

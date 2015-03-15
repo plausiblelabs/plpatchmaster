@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0512CBB018B2AA700096D0A9 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0512CBAF18B2AA700096D0A9 /* SenTestingKit.framework */; };
 		0512CBB118B2AA700096D0A9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05CAE63018B292D300F76068 /* Foundation.framework */; };
 		0512CBC118B2AAD70096D0A9 /* PLPatchMasterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */; };
 		0512CBC318B2AB1A0096D0A9 /* libPLPatchMaster-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 05CAE62F18B292D300F76068 /* libPLPatchMaster-iOS.a */; };
@@ -34,7 +33,6 @@
 		05A7FC2F18B2A04B0071D362 /* PLBlockIMP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */; };
 		05CAE63118B292D400F76068 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05CAE63018B292D300F76068 /* Foundation.framework */; };
 		05CAE65418B2932500F76068 /* PLPatchMaster.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */; };
-		05E8886C18B2B16D0048AD6B /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0512CBAF18B2AA700096D0A9 /* SenTestingKit.framework */; };
 		05E8887B18B2B1840048AD6B /* PLPatchMasterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */; };
 		05E8887C18B2B1890048AD6B /* PLPatchMaster.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
 		05E8887E18B2B19F0048AD6B /* PLPatchMaster.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
@@ -130,7 +128,6 @@
 
 /* Begin PBXFileReference section */
 		0512CBAE18B2AA700096D0A9 /* PLPatchMaster-iOSTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "PLPatchMaster-iOSTests.octest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0512CBAF18B2AA700096D0A9 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		052B1EA418B287C000ACCE6B /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		052B1EA518B287C000ACCE6B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		052B1EAC18B2883400ACCE6B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -180,7 +177,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0512CBB018B2AA700096D0A9 /* SenTestingKit.framework in Frameworks */,
 				0512CBC318B2AB1A0096D0A9 /* libPLPatchMaster-iOS.a in Frameworks */,
 				0512CBB118B2AA700096D0A9 /* Foundation.framework in Frameworks */,
 			);
@@ -218,7 +214,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05E8886C18B2B16D0048AD6B /* SenTestingKit.framework in Frameworks */,
 				05E8887C18B2B1890048AD6B /* PLPatchMaster.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -245,7 +240,6 @@
 				05CAE63018B292D300F76068 /* Foundation.framework */,
 				05CAE64018B292D400F76068 /* UIKit.framework */,
 				05A7FBFB18B29EB90071D362 /* CoreGraphics.framework */,
-				0512CBAF18B2AA700096D0A9 /* SenTestingKit.framework */,
 				052B1EAE18B2883400ACCE6B /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -461,7 +455,7 @@
 			name = "PLPatchMaster-iOSTests";
 			productName = "PLPatchMaster-iOSTests";
 			productReference = 0512CBAE18B2AA700096D0A9 /* PLPatchMaster-iOSTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 		052B1EE118B2896F00ACCE6B /* PLPatchMaster */ = {
 			isa = PBXNativeTarget;
@@ -535,7 +529,7 @@
 			name = PLPatchMasterTests;
 			productName = PLPatchMasterTests;
 			productReference = 05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -1094,7 +1088,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -1130,7 +1123,6 @@
 				INFOPLIST_FILE = "PLPatchMasterTests/PLPatchMasterTests-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
