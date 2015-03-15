@@ -216,6 +216,12 @@ typedef struct plcrash_async_macho_symtab_reader {
 
     /** Total number of elements in the local symtab. */
     uint32_t nsyms_local;
+    
+    /** Pointer to the indirect symbol table, if any. May be NULL. */
+    void *symtab_indirect;
+
+    /** Total number of elements in the indirect symbol table. */
+    uint32_t nsyms_indirect;
 
     /** The mapped string table. The validity of this pointer (and the length of
      * data available) is gauranteed. */

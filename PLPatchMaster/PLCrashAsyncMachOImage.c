@@ -556,6 +556,7 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
     /* Fetch pointers to the symbol and string tables, and verify their size values */
     void *nlist_table;
     char *string_table;
+
     
     nlist_table = (void *) (reader->linkedit.mobj.address + (symtab_cmd->symoff - reader->linkedit.fileoff));
     string_table = (void *) (reader->linkedit.mobj.address + (symtab_cmd->stroff - reader->linkedit.fileoff));
@@ -578,6 +579,9 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
         uint32_t nsyms_global = dysymtab_cmd->nextdefsym;
         uint32_t nsyms_local = dysymtab_cmd->nlocalsym;
         
+        uint32_t nsyms_indirect = dysymtab_cmd->nindirectsyms;
+        void *indirect_table = (void *) (reader->linkedit.mobj.address + (dysymtab_cmd->indirectsymoff - reader->linkedit.fileoff));
+    
         /* Sanity check the symbol offsets to ensure they're within our known-valid ranges */
         if (idx_syms_global + nsyms_global > nsyms || idx_syms_local + nsyms_local > nsyms) {
             PLCF_DEBUG("iextdefsym=%" PRIx32 ", ilocalsym=%" PRIx32 " out of range nsym=%" PRIx32, idx_syms_global+nsyms_global, idx_syms_local+nsyms_local, nsyms);
@@ -588,6 +592,8 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
         /* Initialize reader state */
         reader->nsyms_global = nsyms_global;
         reader->nsyms_local = nsyms_local;
+        reader->nsyms_indirect = nsyms_indirect;
+        reader->symtab_indirect = indirect_table;
 
         if (image->m64) {
             struct nlist_64 *n64 = nlist_table;
