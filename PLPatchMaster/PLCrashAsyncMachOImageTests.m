@@ -321,6 +321,38 @@ static void testFindSymbol_cb (uintptr_t address, const char *name, void *ctx) {
 }
 
 /**
+ * Test indirect table reading.
+ */
+- (void) testReadIndirect {
+    plcrash_async_macho_symtab_reader_t reader;
+    plcrash_error_t ret = plcrash_async_macho_symtab_reader_init(&reader, &_image);
+    XCTAssertEqual(ret, PLCRASH_ESUCCESS, @"Failed to initializer reader");
+
+    /* We should be able to find an indirect symbol reference to _dladdr :-) */
+    const char *sym;
+    plcrash_async_macho_symtab_entry_t entry;
+    for (uint32_t i = 0; i < reader.indirect_table_count; i++) {
+        uint32_t sym_idx = plcrash_async_macho_symtab_reader_indirect(&reader, i);
+        if (sym_idx >= reader.nsyms)
+            continue;
+        
+        entry = plcrash_async_macho_symtab_reader_read(&reader, reader.symtab, sym_idx);
+
+        /* Verify the name */
+        sym = plcrash_async_macho_symtab_reader_symbol_name(&reader, entry.n_strx);
+        if (sym != NULL && strcmp(sym, "_dladdr") == 0)
+            break;
+    }
+
+    /* Verify the name */
+    XCTAssertTrue(sym != NULL, @"Symbol name read failed");
+    if (sym != NULL)
+        XCTAssertTrue(strcmp(sym, "_dladdr") == 0, @"Returned incorrect symbol name: %s != %s", sym, "_dladdr");
+    
+    plcrash_async_macho_symtab_reader_free(&reader);
+}
+
+/**
  * Test symbol name reading.
  */
 - (void) testReadSymbolName {

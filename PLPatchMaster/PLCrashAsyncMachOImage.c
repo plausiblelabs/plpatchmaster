@@ -579,8 +579,8 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
         uint32_t nsyms_global = dysymtab_cmd->nextdefsym;
         uint32_t nsyms_local = dysymtab_cmd->nlocalsym;
         
-        uint32_t nsyms_indirect = dysymtab_cmd->nindirectsyms;
-        void *indirect_table = (void *) (reader->linkedit.mobj.address + (dysymtab_cmd->indirectsymoff - reader->linkedit.fileoff));
+        uint32_t indirect_table_count = dysymtab_cmd->nindirectsyms;
+        void *indirect_table = (uint32_t *) (reader->linkedit.mobj.address + (dysymtab_cmd->indirectsymoff - reader->linkedit.fileoff));
     
         /* Sanity check the symbol offsets to ensure they're within our known-valid ranges */
         if (idx_syms_global + nsyms_global > nsyms || idx_syms_local + nsyms_local > nsyms) {
@@ -592,8 +592,8 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
         /* Initialize reader state */
         reader->nsyms_global = nsyms_global;
         reader->nsyms_local = nsyms_local;
-        reader->nsyms_indirect = nsyms_indirect;
-        reader->symtab_indirect = indirect_table;
+        reader->indirect_table_count = indirect_table_count;
+        reader->indirect_table = indirect_table;
 
         if (image->m64) {
             struct nlist_64 *n64 = nlist_table;
@@ -671,6 +671,16 @@ plcrash_async_macho_symtab_entry_t plcrash_async_macho_symtab_reader_read (plcra
 #undef pl_sym_value
     
     return entry;
+}
+
+/**
+ * Given an indirect symbol index for @a reader, returns the associated symbol table index.
+ *
+ * @param reader The reader containing a mapped indirect table.
+ * @param indirect_idx The index within the @a reader indirect table.
+ */
+uint32_t plcrash_async_macho_symtab_reader_indirect (plcrash_async_macho_symtab_reader_t *reader, uint32_t indirect_idx) {
+    return reader->indirect_table[indirect_idx];
 }
 
 /**

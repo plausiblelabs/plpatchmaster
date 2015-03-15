@@ -217,11 +217,11 @@ typedef struct plcrash_async_macho_symtab_reader {
     /** Total number of elements in the local symtab. */
     uint32_t nsyms_local;
     
-    /** Pointer to the indirect symbol table, if any. May be NULL. */
-    void *symtab_indirect;
+    /** Pointer to the indirect table, if any. May be NULL. */
+    uint32_t *indirect_table;
 
-    /** Total number of elements in the indirect symbol table. */
-    uint32_t nsyms_indirect;
+    /** Total number of elements in the symbol table. */
+    uint32_t indirect_table_count;
 
     /** The mapped string table. The validity of this pointer (and the length of
      * data available) is gauranteed. */
@@ -264,6 +264,7 @@ plcrash_error_t plcrash_async_macho_find_symbol_by_name (plcrash_async_macho_t *
 
 plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symtab_reader_t *reader, plcrash_async_macho_t *image);
 plcrash_async_macho_symtab_entry_t plcrash_async_macho_symtab_reader_read (plcrash_async_macho_symtab_reader_t *reader, void *symtab, uint32_t index);
+uint32_t plcrash_async_macho_symtab_reader_indirect (plcrash_async_macho_symtab_reader_t *reader, uint32_t indirect_idx);
 const char *plcrash_async_macho_symtab_reader_symbol_name (plcrash_async_macho_symtab_reader_t *reader, uint32_t n_strx);
 void plcrash_async_macho_symtab_reader_free (plcrash_async_macho_symtab_reader_t *reader);
 
