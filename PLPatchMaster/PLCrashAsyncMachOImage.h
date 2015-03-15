@@ -154,7 +154,24 @@ typedef struct plcrash_async_macho_mapped_segment_t {
     
     /* File size of the segment. */
 	uint64_t	filesize;
+
+    /** Number of sections in this segment. */
+    uint32_t    nsect;
 } pl_async_macho_mapped_segment_t;
+
+/**
+ * A mapped Mach-O section.
+ */
+typedef struct plcrash_async_macho_mapped_section_t {
+    /** The containing segment. */
+    pl_async_macho_mapped_segment_t segment;
+    
+    /** The section's mapped memory object. */
+    plcrash_async_mobject_t mobj;
+    
+    /** The corresponding section command */
+    struct section *sect_cmd;
+} plcrash_async_macho_mapped_section_t;
 
 /**
  * @internal
@@ -220,8 +237,14 @@ typedef struct plcrash_async_macho_symtab_reader {
     /** Pointer to the indirect table, if any. May be NULL. */
     uint32_t *indirect_table;
 
-    /** Total number of elements in the symbol table. */
+    /** Total number of elements in the indirect symbol table. */
     uint32_t indirect_table_count;
+    
+    /** Pointer to lazy indirect symbols within the indirect table. */
+    uint32_t *indirect_lazy_table;
+    
+    /** Number of lazy entries in the indirect symbol table. */
+    uint32_t indirect_lazy_table_count;
 
     /** The mapped string table. The validity of this pointer (and the length of
      * data available) is gauranteed. */
@@ -255,6 +278,8 @@ void *plcrash_async_macho_next_command (plcrash_async_macho_t *image, void *prev
 void *plcrash_async_macho_next_command_type (plcrash_async_macho_t *image, void *previous, uint32_t expectedCommand);
 void *plcrash_async_macho_find_command (plcrash_async_macho_t *image, uint32_t cmd);
 void *plcrash_async_macho_find_segment_cmd (plcrash_async_macho_t *image, const char *segname);
+
+void *plcrash_async_macho_next_section (plcrash_async_macho_t *image, void *segment_cmd, void *previous);
 
 plcrash_error_t plcrash_async_macho_map_segment (plcrash_async_macho_t *image, const char *segname, pl_async_macho_mapped_segment_t *seg);
 plcrash_error_t plcrash_async_macho_map_section (plcrash_async_macho_t *image, const char *segname, const char *sectname, plcrash_async_mobject_t *mobj);

@@ -379,17 +379,60 @@ plcrash_error_t plcrash_async_macho_map_segment (plcrash_async_macho_t *image, c
 
         seg->fileoff = cmd_64->fileoff;
         seg->filesize = cmd_64->filesize;
+        seg->nsect = cmd_64->nsects;
     } else {
         segaddr = cmd_32->vmaddr + image->vmaddr_slide;
         segsize = cmd_32->vmsize;
         
         seg->fileoff = cmd_32->fileoff;
         seg->filesize = cmd_32->filesize;
+        seg->nsect = cmd_32->nsects;
     }
     
     seg->mobj.address = segaddr;
     seg->mobj.length = segsize;
     return PLCRASH_ESUCCESS;
+}
+
+/**
+ * Iterate over sections within a segment.
+ *
+ * @param image The image to iterate.
+ * @param segment_cmd The segment to iterate.
+ * @param previous The previously returned section/section_64 address value, or 0 to iterate from the first entry.
+ */
+void *plcrash_async_macho_next_section (plcrash_async_macho_t *image, void *segment_cmd, void *previous) {
+    struct segment_command *cmd_32;
+    struct segment_command_64 *cmd_64;
+    
+    cmd_32 = segment_cmd;
+    cmd_64 = segment_cmd;
+    
+    uint32_t nsects;
+    uintptr_t cursor = (uintptr_t) segment_cmd;
+    size_t sectsize;
+    
+    if (image->m64) {
+        nsects = cmd_64->nsects;
+        cursor += sizeof(*cmd_64);
+        sectsize = sizeof(struct section_64);
+    } else {
+        nsects = cmd_32->nsects;
+        cursor += sizeof(*cmd_32);
+        sectsize = sizeof(struct section);
+    }
+    
+    /* On first iteration, we can return the first section */
+    if (previous == NULL) {
+        if (nsects == 0)
+            return NULL;
+        return (void *) cursor;
+    }
+    
+    if ((((uintptr_t)previous) - cursor) / sectsize == nsects)
+        return NULL;
+    
+    return (void *) ((uintptr_t) previous + sectsize);
 }
 
 /**
@@ -531,6 +574,9 @@ plcrash_error_t plcrash_async_macho_find_symbol_by_name (plcrash_async_macho_t *
  */
 plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symtab_reader_t *reader, plcrash_async_macho_t *image) {
     plcrash_error_t retval;
+    
+    /* Zero out the reader */
+    memset(reader, 0, sizeof(*reader));
 
     /* Fetch the symtab commands, if available. */
     struct symtab_command *symtab_cmd = plcrash_async_macho_find_command(image, LC_SYMTAB);
@@ -569,7 +615,7 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
     reader->symtab = nlist_table;
     reader->nsyms = nsyms;
 
-    /* Initialize the local/global table pointers, if available */
+    /* Initialize the local/global/indirect table pointers, if available */
     if (dysymtab_cmd != NULL) {
         /* dysymtab is available; use it to constrain our symbol search to the global and local sections of the symbol table. */
         
@@ -580,8 +626,27 @@ plcrash_error_t plcrash_async_macho_symtab_reader_init (plcrash_async_macho_symt
         uint32_t nsyms_local = dysymtab_cmd->nlocalsym;
         
         uint32_t indirect_table_count = dysymtab_cmd->nindirectsyms;
-        void *indirect_table = (uint32_t *) (reader->linkedit.mobj.address + (dysymtab_cmd->indirectsymoff - reader->linkedit.fileoff));
-    
+        uint32_t *indirect_table = (uint32_t *) (reader->linkedit.mobj.address + (dysymtab_cmd->indirectsymoff - reader->linkedit.fileoff));
+
+        /* Find the offsets within the indirect_table for the lazy and non-lazy symbol pointers. These are calculated based on the
+         * lazy section types. */
+        void *segment_cmd = NULL;
+        while ((segment_cmd = plcrash_async_macho_next_command_type(image, segment_cmd, image->m64 ? LC_SEGMENT_64 : LC_SEGMENT)) != NULL) {
+            struct section *sect = NULL;
+            
+            /* Iterate the lazy symbol pointer sections */
+            while ((sect = plcrash_async_macho_next_section(image, segment_cmd, sect)) != NULL) {
+                /* The initial index within the indirect table is provided via `reserved1` */
+                if ((sect->flags & SECTION_TYPE) == S_LAZY_SYMBOL_POINTERS) {
+                    reader->indirect_lazy_table = indirect_table + sect->reserved1;
+                    reader->indirect_lazy_table_count = sect->size / sizeof(void *);
+                } else if ((sect->flags & SECTION_TYPE) == S_NON_LAZY_SYMBOL_POINTERS) {
+                    reader->indirect_non_lazy_table  = indirect_table + sect->reserved1;
+                    reader->indirect_non_lazy_table_count = sect->size / sizeof(void *);
+                }
+            }
+        }
+        
         /* Sanity check the symbol offsets to ensure they're within our known-valid ranges */
         if (idx_syms_global + nsyms_global > nsyms || idx_syms_local + nsyms_local > nsyms) {
             PLCF_DEBUG("iextdefsym=%" PRIx32 ", ilocalsym=%" PRIx32 " out of range nsym=%" PRIx32, idx_syms_global+nsyms_global, idx_syms_local+nsyms_local, nsyms);
