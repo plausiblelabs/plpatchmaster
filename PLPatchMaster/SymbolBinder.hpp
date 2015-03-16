@@ -226,11 +226,19 @@ class bind_opstream {
     /** Current immediate value */
     uint8_t _immd = 0;
     
+    /** 
+     * If true, this is a lazy opcode section; BIND_OPCODE_DONE is automatically skipped at the end of
+     * each entry (the lazy section is written to terminate evaluation after each entry, as each symbol within
+     * the lazy section is by dyld on-demand, and is supposed to terminate after resolving one symbol).
+     */
+    bool _isLazy;
+
 public:
-    bind_opstream (const uint8_t *opcodes, const size_t opcodes_len) : _p(opcodes), _instr(_p), _instr_max(_p + opcodes_len) {}
+    bind_opstream (const uint8_t *opcodes, const size_t opcodes_len, bool isLazy) : _p(opcodes), _instr(_p), _instr_max(_p + opcodes_len), _isLazy(isLazy) {}
     
-    bind_opstream (const bind_opstream &other) : _p(other._p), _instr(other._instr), _instr_max(other._instr_max) {}
+    bind_opstream (const bind_opstream &other) : _p(other._p), _instr(other._instr), _instr_max(other._instr_max), _isLazy(other._isLazy) {}
     
+    /** Read a ULEB128 value and advance the stream */
     inline uint64_t uleb128 () {
         size_t len;
         uint64_t result = read_uleb128(_p, &len);
@@ -240,6 +248,7 @@ public:
         return result;
     }
 
+    /** Read a SLEB128 value and advance the stream */
     inline int64_t sleb128 () {
         size_t len;
         int64_t result = read_sleb128(_p, &len);
@@ -249,29 +258,43 @@ public:
         return result;
     }
 
+    /** Skip @a offset bytes. */
     inline void skip (size_t offset) {
         _p += offset;
         assert(_p <= _instr_max);
     }
     
+    /** Read a single opcode from the stream. */
     inline uint8_t opcode () {
         assert(_p < _instr_max);
         uint8_t value = (*_p) & BIND_OPCODE_MASK;
         _immd = (*_p) & BIND_IMMEDIATE_MASK;
         _p++;
+        
+        /* Skip BIND_OPCODE_DONE if it occurs within a lazy binding opcode stream */
+        if (_isLazy && *_p == BIND_OPCODE_DONE && !isEmpty())
+            skip(1);
+        
         return value;
     };
 
+    /** Return the current stream position. */
     inline const uint8_t *position () { return _p; };
-    inline bool isEmpty () { return _p >= _instr_max; }
     
+    /** Return true if there are no additional opcodes to be read. */
+    inline bool isEmpty () { return _p >= _instr_max; }
+
+    /** Read a NUL-terminated C string from the stream, advancing the current position past the string. */
     inline const char *cstring () {
         const char *result = (const char *) _p;
         skip(strlen(result) + 1);
         return result;
     }
     
+    /** Return the immediate value from the last opcode */
     inline uint8_t immd () { return _immd; }
+    
+    /** Return the signed representation of immd */
     inline int8_t signed_immd () {
         /* All other constants are negative */
         if (immd() == 0)
@@ -376,13 +399,13 @@ public:
                     uintptr_t linkedit_base = (linkedit->vmaddr + vm_slide) - linkedit->fileoff;
                     
                     if (info->bind_off != 0)
-                        bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->bind_off), (size_t) info->bind_size));
+                        bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->bind_off), (size_t) info->bind_size, false));
                     
                     if (info->weak_bind_off != 0)
-                        bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->weak_bind_off), (size_t) info->weak_bind_size));
+                        bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->weak_bind_off), (size_t) info->weak_bind_size, false));
                     
                     if (info->lazy_bind_off != 0)
-                        bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->lazy_bind_off), (size_t) info->lazy_bind_size));
+                        bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->lazy_bind_off), (size_t) info->lazy_bind_size, true));
                 }
                     
                 default:
@@ -428,8 +451,8 @@ public:
         /* buffer used to hold an allocated image path, if any */
         std::vector<char> sym_image_buffer;
 
-        /* symbol type (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
-        uint8_t sym_type = 0;
+        /* bind type (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
+        uint8_t bind_type = BIND_TYPE_POINTER;
         
         /* symbol name */
         const char *sym_name = "";
@@ -447,13 +470,28 @@ public:
          * Check our patch table for this symbol; if found, try to apply
          */
         auto handle_bind = [&]() {
-            // TODO - match against the target symbol, perform binding.
+            if (symbol != sym_name)
+                return;
+            
+            // TODO - Support relative matches on the image name.
+            if (library != sym_image)
+                return;
+            
+            // TODO - Can we handle the other types?
+            if (bind_type != BIND_TYPE_POINTER)
+                return;
+            
+            // temporary debug output
             Dl_info dlinfo;
             if (dladdr((const void *) bind_address, &dlinfo) == 0) {
                 PMDebug("Should bind %s:%s at unknown address %p", sym_image.c_str(), sym_name, (const void *) bind_address);
             } else {
-                PMDebug("Should bind %s:%s at %s:%p (%s)", sym_image.c_str(), sym_name, dlinfo.dli_fname, (const void *) bind_address, dlinfo.dli_sname);
+                PMDebug("Should bind %s:%s at %s:%p", sym_image.c_str(), sym_name, dlinfo.dli_fname, (const void *) bind_address);
             }
+            
+            // TODO - Do we need to set __TEXT segments writable, etc?
+            *((uintptr_t *) bind_address) = new_value;
+            return;
         };
 
         /* Given an index into our reference libraries, update the `sym_image` state */
@@ -523,7 +561,7 @@ public:
                     break;
                     
                 case BIND_OPCODE_SET_TYPE_IMM:
-                    sym_type = ops.immd();
+                    bind_type = ops.immd();
                     break;
                     
                 case BIND_OPCODE_SET_ADDEND_SLEB:

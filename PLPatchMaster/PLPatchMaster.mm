@@ -233,6 +233,10 @@ static BOOL patch_imp_removeBlock (IMP anImp) {
     NSMutableArray *_restoreBlocks;
 }
 
+void NSMyLog(NSString *fmt, ...) {
+    fprintf(stderr, "logging has been interposed\n");
+}
+
 /* Handle dyld image load notifications. These *should* be dispatched after the Objective-C callbacks have been
  * dispatched, but there's no gaurantee. It's possible, though unlikely, that this could break in a future release of Mac OS X. */
 static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_slide) {
@@ -243,14 +247,14 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
             continue;
         name = _dyld_get_image_name(i);
     }
-    
+
     // TODO - Lift our logging macros out into a seperate header, log name != nullptr as a warning.
     if (name != nullptr) {
         /* Parse the image */
         auto image = LocalImage::Analyze(name, (const pl_mach_header_t *) mh);
 
-        // TODO: Provide a table of rebindings
-        image.rebind_symbol_address("", "xxx_todo", 0x0);
+        // TODO: Provide a table of rebindings?
+        image.rebind_symbol_address("/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation", "_NSLog", (uintptr_t) &NSMyLog);
     }
     
     
