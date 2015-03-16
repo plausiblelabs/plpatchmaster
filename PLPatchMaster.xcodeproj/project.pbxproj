@@ -172,6 +172,7 @@
 		05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PLPatchMasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SymbolBinder.cpp; sourceTree = "<group>"; };
 		05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SymbolBinder.hpp; sourceTree = "<group>"; };
+		05EEA0771AB752F9000C8B89 /* PMLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PMLog.h; sourceTree = "<group>"; };
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -413,6 +414,7 @@
 				052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */,
 				052B1ED218B2887A00ACCE6B /* PLPatchMaster.mm */,
 				05A33A8918B28F490032E79F /* PLBlockLayout.h */,
+				05EEA0771AB752F9000C8B89 /* PMLog.h */,
 				05CAE65E18B2955B00F76068 /* ARM32 */,
 				05CAE65A18B2952600F76068 /* ARM64 */,
 				052B1F1318B28ABA00ACCE6B /* x86-64 */,

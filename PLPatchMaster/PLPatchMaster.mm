@@ -35,6 +35,7 @@ extern "C" {
 }
 
 #import "PLBlockLayout.h"
+#import "PMLog.h"
 
 #import <mach-o/dyld.h>
 
@@ -215,7 +216,7 @@ static BOOL patch_imp_removeBlock (IMP anImp) {
     OSSpinLock _lock;
     
     IMP _callbackFunc;
-
+    
     /** Maps class -> set -> selector names. Used to keep track of patches that have already been made,
      * and thus do not require a _restoreBlock to be registered */
     NSMutableDictionary *_classPatches;
@@ -249,14 +250,15 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
     }
 
     // TODO - Lift our logging macros out into a seperate header, log name != nullptr as a warning.
-    if (name != nullptr) {
-        /* Parse the image */
-        auto image = LocalImage::Analyze(name, (const pl_mach_header_t *) mh);
-
-        // TODO: Provide a table of rebindings?
-        image.rebind_symbol_address("/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation", "_NSLog", (uintptr_t) &NSMyLog);
+    if (name == nullptr) {
+        PMLog("Failed to lookup Mach-O image name; skipping patching");
+        return;
     }
-    
+    /* Parse the image */
+    auto image = LocalImage::Analyze(name, (const pl_mach_header_t *) mh);
+
+    // TODO: Provide a table of rebindings?
+    image.rebind_symbol_address("/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation", "_NSLog", (uintptr_t) &NSMyLog);
     
     [[NSNotificationCenter defaultCenter] postNotificationName: PLPatchMasterImageDidLoadNotification object: nil];
 }

@@ -28,6 +28,8 @@
 
 #pragma once
 
+#include "PMLog.h"
+
 #include <mach-o/loader.h>
 #include <mach-o/dyld.h>
 
@@ -57,19 +59,6 @@ typedef struct section pl_section_t;
 typedef struct nlist pl_nlist_t;
 static constexpr uint32_t PL_LC_SEGMENT = LC_SEGMENT;
 #endif
-
-#define PMLog(_prefix, fmt, ...) do { \
-    fprintf(stderr, _prefix fmt "\n", ## __VA_ARGS__); \
-} while(0)
-
-#define PMDebug(fmt, ...) do { \
-    PMLog("[PLPatchMaster] ", fmt, ## __VA_ARGS__); \
-} while(0)
-
-#define PMFatal(fmt, ...) do { \
-    PMLog("[PLPatchMaster] FATAL ERROR: ", fmt, ## __VA_ARGS__); \
-    abort(); \
-} while(0)
 
 /**
  * A single-level or two-level namespaced symbol reference.
