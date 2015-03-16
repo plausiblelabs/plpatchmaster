@@ -313,6 +313,9 @@ private:
     ) : _header(header), _vmaddr_slide(vmaddr_slide), _libraries(libraries), _segments(segments), _bindOpcodes(bindings), _path(path) {}
 
 public:
+    /** Symbol binding function */
+    using bind_fn = std::function<void (const SymbolName &name, uintptr_t *target, int64_t addend)>;
+
     /**
      * Analyze an in-memory Mach-O image.
      *
@@ -406,32 +409,26 @@ public:
     }
     
     /**
-     * Evaluate all available dyld bind opcodes, rebinding any instances of @a symbol to point at @a new_address.
+     * Evaluate all available dyld bind opcodes, passing all resolved bindings to @a binder.
      *
-     * @param library A relative or absolute path to the library in which @a symbol is defined. Symbols are uniquely identified
-     * in a two level namespace by their name *and* defining library.
-     * @param symbol The symbol name.
-     * @param new_value The new address value for the given symbol.
+     * @param binder The function to be called with resolved symbol bindings.
      *
      * @return Returns true on success, or false if the opcode stream references invalid segment or image addresses.
      */
-    void rebind_symbol_address (const std::string &library, const std::string &symbol, uintptr_t new_value) {
+    void rebind_symbols (const bind_fn &binder) {
         for (auto &&opcodes : *_bindOpcodes)
-            evaluate_bind_opstream(opcodes, library, symbol, new_value);
+            evaluate_bind_opstream(opcodes, binder);
     }
 
     /**
-     * Evaluate the given opcode stream, rebinding all instances of @a symbol to point at @a new_address.
+     * Evaluate the given opcode stream, passing all resolved bindings to @a binder.
      *
      * @param opcodes The opcode stream to be evaluated.
-     * @param library A relative or absolute path to the library in which @a symbol is defined. Symbols are uniquely identified
-     * in a two level namespace by their name *and* defining library.
-     * @param symbol The symbol name.
-     * @param new_value The new address value for the given symbol.
+     * @param binder The function to be called with resolved symbol bindings.
      *
      * @return Returns true on success, or false if the opcode stream references invalid segment or image addresses.
      */
-    void evaluate_bind_opstream (const bind_opstream &opcodes, const std::string &library, const std::string &symbol, uintptr_t new_value) {
+    void evaluate_bind_opstream (const bind_opstream &opcodes, const bind_fn &binder) {
         using namespace std;
         
         /* dylib path from which the symbol will be resolved, or an empty string if unspecified or flat binding. */
@@ -459,28 +456,12 @@ public:
          * Check our patch table for this symbol; if found, try to apply
          */
         auto handle_bind = [&]() {
-            if (symbol != sym_name)
-                return;
-            
-            // TODO - Support relative matches on the image name.
-            if (library != sym_image)
-                return;
-            
             // TODO - Can we handle the other types?
             if (bind_type != BIND_TYPE_POINTER)
                 return;
             
-            // temporary debug output
-            Dl_info dlinfo;
-            if (dladdr((const void *) bind_address, &dlinfo) == 0) {
-                PMDebug("Should bind %s:%s at unknown address %p", sym_image.c_str(), sym_name, (const void *) bind_address);
-            } else {
-                PMDebug("Should bind %s:%s at %s:%p", sym_image.c_str(), sym_name, dlinfo.dli_fname, (const void *) bind_address);
-            }
-            
-            // TODO - Do we need to set __TEXT segments writable, etc?
-            *((uintptr_t *) bind_address) = new_value;
-            return;
+            /* Let our caller perform a bind */
+            binder(SymbolName(sym_image, sym_name), (uintptr_t *) bind_address, addend);
         };
 
         /* Given an index into our reference libraries, update the `sym_image` state */

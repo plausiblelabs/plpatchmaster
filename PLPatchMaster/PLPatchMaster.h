@@ -78,4 +78,7 @@ typedef struct PLPatchIMP {
 - (void) patchFutureClassWithName: (NSString *) className selector: (SEL) selector replacementBlock: (id) replacementBlock;
 - (void) patchInstancesWithFutureClassName: (NSString *) className selector: (SEL) selector replacementBlock: (id) replacementBlock;
 
+- (void) rebindSymbol: (NSString *) symbol fromImage: (NSString *) library replacementAddress: (uintptr_t) replacementAddress;
+- (void) rebindSymbol: (NSString *) symbol replacementAddress: (uintptr_t) replacementAddress;
+
 @end

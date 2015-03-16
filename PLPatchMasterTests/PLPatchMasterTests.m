@@ -62,4 +62,27 @@ struct stret_return {
     XCTAssertTrue(strcmp(ret.value, "jello") == 0, @"Incorrect value returned: '%s'", ret.value);
 }
 
+- (void) testRebindSymbol {
+#if defined(__i386__) && !defined(TARGET_OS_IPHONE)
+    /* ObjC 1.0 runtime */
+    NSString *classSymbol = @".objc_class_name__NSAttributedString";
+#else
+    /* ObjC 2.0 runtime */
+    NSString *classSymbol = @"_OBJC_CLASS_$_NSAttributedString";
+#endif
+    
+    /* Fetch the current class pointer */
+    void *orig = (__bridge void *) [NSAttributedString class];
+    XCTAssertEqual((__bridge void *) [NSAttributedString class], orig);
+
+    /* Rebind */
+    [[PLPatchMaster master] rebindSymbol: classSymbol fromImage: @"Foundation" replacementAddress: (uintptr_t) [NSArray class]];
+    XCTAssertEqual([NSAttributedString class], [NSArray class]);
+    XCTAssertNotEqual((__bridge void *) [NSAttributedString class], orig);
+    
+    /* Restore the original */
+    [[PLPatchMaster master] rebindSymbol: classSymbol fromImage: @"Foundation" replacementAddress: (uintptr_t) orig];
+    XCTAssertEqual((__bridge void *) [NSAttributedString class], orig);
+}
+
 @end

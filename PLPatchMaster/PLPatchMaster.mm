@@ -60,6 +60,14 @@ extern "C" {
 
 using namespace patchmaster;
 
+/**
+ * @internal
+ *
+ * Table of symbol-based patches; maps the single-level symbol name to the
+ * fully qualified two-level SymbolNames and associated patch value.
+ */
+typedef std::map<std::string, std::vector<std::tuple<SymbolName, uintptr_t>>> PatchTable;
+
 /* The ARM64 ABI does not require (or support) the _stret objc_msgSend variant */
 #ifdef __arm64__
 #define STRET_TABLE_REQUIRED 0
@@ -73,6 +81,11 @@ using namespace patchmaster;
 
 /** Notification sent (synchronously) when an image is added. */
 static NSString *PLPatchMasterImageDidLoadNotification = @"PLPatchMasterImageDidLoadNotification";
+
+/** Notification user-info key containing the mach header pointer for a newly added image */
+static NSString *PLPatchMasterMachHeaderKey = @"PLPatchMasterMachHeaderKey";
+
+static void perform_dyld_rebinding (const PatchTable &patches, const char *image_name, const struct mach_header *mh);
 
 /* Global lock for our mutable trampoline state. Must be held when accessing the trampoline tables. */
 static pthread_mutex_t blockimp_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -217,6 +230,12 @@ static BOOL patch_imp_removeBlock (IMP anImp) {
     
     IMP _callbackFunc;
     
+    /**
+     * Table of symbol-based patches; maps the single-level symbol name to the
+     * fully qualified two-level SymbolNames and associated patch value.
+     */
+    PatchTable _symbolPatches;
+    
     /** Maps class -> set -> selector names. Used to keep track of patches that have already been made,
      * and thus do not require a _restoreBlock to be registered */
     NSMutableDictionary *_classPatches;
@@ -234,33 +253,13 @@ static BOOL patch_imp_removeBlock (IMP anImp) {
     NSMutableArray *_restoreBlocks;
 }
 
-void NSMyLog(NSString *fmt, ...) {
-    fprintf(stderr, "logging has been interposed\n");
-}
-
 /* Handle dyld image load notifications. These *should* be dispatched after the Objective-C callbacks have been
  * dispatched, but there's no gaurantee. It's possible, though unlikely, that this could break in a future release of Mac OS X. */
 static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_slide) {
-    /* Find the image's name */
-    const char *name = nullptr;
-    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
-        if (_dyld_get_image_header(i) != mh)
-            continue;
-        name = _dyld_get_image_name(i);
-    }
-
-    // TODO - Lift our logging macros out into a seperate header, log name != nullptr as a warning.
-    if (name == nullptr) {
-        PMLog("Failed to lookup Mach-O image name; skipping patching");
-        return;
-    }
-    /* Parse the image */
-    auto image = LocalImage::Analyze(name, (const pl_mach_header_t *) mh);
-
-    // TODO: Provide a table of rebindings?
-    image.rebind_symbol_address("/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation", "_NSLog", (uintptr_t) &NSMyLog);
+    auto *userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject: [NSValue valueWithPointer: mh] forKey: PLPatchMasterMachHeaderKey];
     
-    [[NSNotificationCenter defaultCenter] postNotificationName: PLPatchMasterImageDidLoadNotification object: nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName: PLPatchMasterImageDidLoadNotification object: nil userInfo: userInfo];
 }
 
 + (void) initialize {
@@ -308,6 +307,27 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
 
 // PLPatchMasterImageDidLoadNotification notification handler
 - (void) handleImageLoad: (NSNotification *) notification {
+    /* Apply all dyld symbol rebindings */
+    {
+        auto mh = (const struct mach_header *) [[[notification userInfo] objectForKey: PLPatchMasterMachHeaderKey] pointerValue];
+        const char *name = nullptr;
+        for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+            if (_dyld_get_image_header(i) != mh)
+                continue;
+            name = _dyld_get_image_name(i);
+        }
+        
+        /* Apply any symbol rebindings immediately */
+        if (name == nullptr) {
+            PMLog("Failed to lookup Mach-O image name; skipping patching");
+        } else {
+            OSSpinLockLock(&_lock);
+            perform_dyld_rebinding(_symbolPatches, name, mh);
+            OSSpinLockUnlock(&_lock);
+        }
+    }
+    
+    /* Apply all Objective-C patches */
     NSArray *blocks;
     OSSpinLockLock(&_lock); {
         blocks = [_pendingPatches copy];
@@ -497,6 +517,95 @@ static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_sli
     }
 
     return YES;
+}
+
+/**
+ * @internal
+ *
+ * Perform dyld-compatible symbol rebinding of the given image.
+ *
+ * @param patches The table of patches; if locking is required, locks must be held by the caller.
+ * @param image_name The name of the image being rebound.
+ * @param mh The in-memory base address of the target image.
+ */
+static void perform_dyld_rebinding (const PatchTable &patches, const char *image_name, const struct mach_header *mh) {
+    /* Analyze the image */
+    auto image = LocalImage::Analyze(image_name, (const pl_mach_header_t *) mh);
+    
+    /* Rebind all symbols */
+    image.rebind_symbols([&patches](const SymbolName &name, uintptr_t *target, int64_t addend) {
+        // TODO: We need to evaluate when/how addend is used.
+        if (addend != 0) {
+            // PMDebug("Skipping unsupported symbol binding for %s:%s with non-zero addend %" PRId64, name.image().c_str(), name.symbol().c_str(), addend);
+            return;
+        }
+        
+        /* Check whether there are /any/ patches for this symbol */
+        if (patches.count(name.symbol()) == 0)
+            return;
+        
+        /* Fetch the patches and apply /all/ patches the match; this ensures that patches added later take priority. */
+        for (auto &&patch : patches.at(name.symbol())) {
+            /* Skip non-matching patches */
+            if (!std::get<0>(patch).match(name))
+                continue;
+            
+            /* Apply matching patches */
+            auto patchValue = std::get<1>(patch);
+            if (*target != patchValue) {
+                *target = patchValue;
+            }
+        }
+        
+    });
+    
+}
+
+/**
+ * Perform dyld-compatible symbol rebinding of all references to @a symbol defined by @a library across all current
+ * and future loaded images.
+ *
+ * @param symbol The name of the symbol to patch.
+ * @param library The absolute or relative path (e.g. 'Foundation') to the library responsible for exporting the original symbol.
+ * @param replacementAddress The new address to which
+ */
+- (void) rebindSymbol: (NSString *) symbol fromImage: (NSString *) library replacementAddress: (uintptr_t) replacementAddress {
+    using namespace std;
+    std::map<std::string, std::vector<std::tuple<SymbolName, uintptr_t>>> foo;
+    
+    auto symbolName = SymbolName(library.UTF8String, symbol.UTF8String);
+    auto patchEntry = make_tuple(symbolName, replacementAddress);
+    
+    /* Add to the standard patch table */
+    OSSpinLockLock(&_lock);
+    if (_symbolPatches.count(symbolName.symbol()) == 0) {
+        _symbolPatches.emplace(make_pair(symbolName.symbol(), vector<tuple<SymbolName, uintptr_t>> { patchEntry }));
+    } else {
+        _symbolPatches.at(symbolName.symbol()).push_back(patchEntry);
+    }
+    
+    /* Mock up a patch table and use it to apply the patch to all existing images */
+    auto patchTable = PatchTable();
+    patchTable.emplace(make_pair(symbolName.symbol(), vector<tuple<SymbolName, uintptr_t>> { patchEntry }));
+    
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const char *name = _dyld_get_image_name(i);
+        perform_dyld_rebinding(patchTable, name, _dyld_get_image_header(i));
+    }
+    OSSpinLockUnlock(&_lock);
+}
+
+/**
+ * Perform dyld-compatible symbol rebinding of all references to @a symbol defined by *any* library across all current
+ * and future loaded images.
+ *
+ * This is essentially equivalent to single-level namespace symbol binding.
+ *
+ * @param symbol The name of the symbol to patch.
+ * @param replacementAddress The new address to which
+ */
+- (void) rebindSymbol: (NSString *) symbol replacementAddress: (uintptr_t) replacementAddress {
+    [self rebindSymbol: symbol fromImage: @"" replacementAddress: replacementAddress];
 }
 
 @end
