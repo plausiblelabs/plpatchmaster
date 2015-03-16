@@ -27,9 +27,12 @@
  */
 
 #import "PLPatchMaster.h"
+#import "SymbolBinder.hpp"
 
-#define PL_BLOCKIMP_PRIVATE 1 // Required for the PLBlockIMP trampoline API
-#import <PLBlockIMP/trampoline_table.h>
+extern "C" {
+  #define PL_BLOCKIMP_PRIVATE 1 // Required for the PLBlockIMP trampoline API
+  #import <PLBlockIMP/trampoline_table.h>
+}
 
 #import "PLBlockLayout.h"
 
@@ -39,17 +42,22 @@
 
 #import <libkern/OSAtomic.h>
 
+/* Include the generated PLBlockIMP headers */
+extern "C" {
 #ifdef __x86_64__
-#include "blockimp_x86_64.h"
-#include "blockimp_x86_64_stret.h"
+  #include "blockimp_x86_64.h"
+  #include "blockimp_x86_64_stret.h"
 #elif defined(__arm64__)
-#include "blockimp_arm64.h"
+  #include "blockimp_arm64.h"
 #elif defined(__arm__)
-#include "blockimp_arm.h"
-#include "blockimp_arm_stret.h"
+  #include "blockimp_arm.h"
+  #include "blockimp_arm_stret.h"
 #else
-#error Unsupported Architecture
+  #error Unsupported Architecture
 #endif
+}
+
+using namespace patchmaster;
 
 /* The ARM64 ABI does not require (or support) the _stret objc_msgSend variant */
 #ifdef __arm64__
@@ -90,10 +98,10 @@ static IMP patch_imp_implementationWithBlock (id block, SEL selector, IMP origIM
     }
     
     /* Configure the trampoline */
-    void **config = pl_trampoline_data_ptr(tramp->trampoline);
+    void **config = (void **) pl_trampoline_data_ptr((void *) tramp->trampoline);
     config[0] = Block_copy((__bridge void *)block);
     config[1] = tramp;
-    config[2] = origIMP;
+    config[2] = (void *) origIMP;
     config[3] = selector;
 
     /* Return the function pointer. */
@@ -118,9 +126,9 @@ static void *patch_imp_getBlock (IMP anImp) {
  */
 static BOOL patch_imp_removeBlock (IMP anImp) {
     /* Fetch the config data */
-    void **config = pl_trampoline_data_ptr(anImp);
-    struct Block_layout *bl = config[0];
-    pl_trampoline *tramp = config[1];
+    void **config = (void **) pl_trampoline_data_ptr((void *) anImp);
+    auto bl = (struct Block_layout *) config[0];
+    auto tramp = (pl_trampoline *) config[1];
     
     /* Drop the trampoline allocation */
     if (bl->flags & BLOCK_USE_STRET) {
@@ -228,6 +236,24 @@ static BOOL patch_imp_removeBlock (IMP anImp) {
 /* Handle dyld image load notifications. These *should* be dispatched after the Objective-C callbacks have been
  * dispatched, but there's no gaurantee. It's possible, though unlikely, that this could break in a future release of Mac OS X. */
 static void dyld_image_add_cb (const struct mach_header *mh, intptr_t vmaddr_slide) {
+    /* Find the image's name */
+    const char *name = nullptr;
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        if (_dyld_get_image_header(i) != mh)
+            continue;
+        name = _dyld_get_image_name(i);
+    }
+    
+    // TODO - Lift our logging macros out into a seperate header, log name != nullptr as a warning.
+    if (name != nullptr) {
+        /* Parse the image */
+        auto image = LocalImage::Analyze(name, (const pl_mach_header_t *) mh);
+
+        // TODO: Provide a table of rebindings
+        image.rebind_symbol_address("", "xxx_todo", 0x0);
+    }
+    
+    
     [[NSNotificationCenter defaultCenter] postNotificationName: PLPatchMasterImageDidLoadNotification object: nil];
 }
 

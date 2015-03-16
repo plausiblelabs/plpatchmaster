@@ -26,6 +26,10 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Block Flags
  */
@@ -108,3 +112,7 @@ struct Block_layout {
     
     // imported variables
 };
+
+#ifdef __cplusplus
+}
+#endif

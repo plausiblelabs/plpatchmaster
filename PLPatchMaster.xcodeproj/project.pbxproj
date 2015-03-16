@@ -15,7 +15,7 @@
 		052B1F0818B28A0500ACCE6B /* PLBlockIMP.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */; };
 		052B1F1118B28AB700ACCE6B /* blockimp_x86_64_stret.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 052B1F0F18B28AB700ACCE6B /* blockimp_x86_64_stret.tramp */; };
 		052B1F1218B28AB700ACCE6B /* blockimp_x86_64.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 052B1F1018B28AB700ACCE6B /* blockimp_x86_64.tramp */; };
-		05A33A8818B28F110032E79F /* PLPatchMaster.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */; };
+		05A33A8818B28F110032E79F /* PLPatchMaster.mm in Sources */ = {isa = PBXBuildFile; fileRef = 052B1ED218B2887A00ACCE6B /* PLPatchMaster.mm */; };
 		05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 05A33A8918B28F490032E79F /* PLBlockLayout.h */; };
 		05A7FBF118B2962C0071D362 /* blockimp_arm.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 05CAE65C18B2954B00F76068 /* blockimp_arm.tramp */; };
 		05A7FBF218B2962C0071D362 /* blockimp_arm_stret.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 05CAE65D18B2955900F76068 /* blockimp_arm_stret.tramp */; };
@@ -32,16 +32,15 @@
 		05A7FC1418B29EB90071D362 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05A7FC1318B29EB90071D362 /* Images.xcassets */; };
 		05A7FC2F18B2A04B0071D362 /* PLBlockIMP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */; };
 		05CAE63118B292D400F76068 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05CAE63018B292D300F76068 /* Foundation.framework */; };
-		05CAE65418B2932500F76068 /* PLPatchMaster.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */; };
+		05CAE65418B2932500F76068 /* PLPatchMaster.mm in Sources */ = {isa = PBXBuildFile; fileRef = 052B1ED218B2887A00ACCE6B /* PLPatchMaster.mm */; };
 		05E8887B18B2B1840048AD6B /* PLPatchMasterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 052B1EFE18B2896F00ACCE6B /* PLPatchMasterTests.m */; };
 		05E8887C18B2B1890048AD6B /* PLPatchMaster.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
 		05E8887E18B2B19F0048AD6B /* PLPatchMaster.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
 		05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05EEA05F1AB5545A000C8B89 /* PLBlockIMP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */; };
-		05EEA0671AB55B8E000C8B89 /* PLCrashAsyncMachOImage.c in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0611AB55B86000C8B89 /* PLCrashAsyncMachOImage.c */; };
-		05EEA0691AB55BAD000C8B89 /* PLCrashAsyncMachOImage.c in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0611AB55B86000C8B89 /* PLCrashAsyncMachOImage.c */; };
-		05EEA06A1AB55BB0000C8B89 /* PLCrashAsyncMachOImageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0631AB55B86000C8B89 /* PLCrashAsyncMachOImageTests.m */; };
-		05EEA06B1AB55BB4000C8B89 /* PLCrashAsyncMachOImageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0631AB55B86000C8B89 /* PLCrashAsyncMachOImageTests.m */; };
+		05EEA0741AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */; };
+		05EEA0751AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */; };
+		05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -140,7 +139,7 @@
 		052B1EB018B2883400ACCE6B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		052B1EB118B2883400ACCE6B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLPatchMaster.h; sourceTree = "<group>"; };
-		052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLPatchMaster.m; sourceTree = "<group>"; };
+		052B1ED218B2887A00ACCE6B /* PLPatchMaster.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PLPatchMaster.mm; sourceTree = "<group>"; };
 		052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlockIMP.framework; sourceTree = "<group>"; };
 		052B1EDA18B2890D00ACCE6B /* PLBlockIMP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PLBlockIMP.framework; sourceTree = "<group>"; };
 		052B1EDB18B2890D00ACCE6B /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
@@ -170,10 +169,9 @@
 		05CAE65B18B2953E00F76068 /* blockimp_arm64.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_arm64.tramp; sourceTree = "<group>"; };
 		05CAE65C18B2954B00F76068 /* blockimp_arm.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_arm.tramp; sourceTree = "<group>"; };
 		05CAE65D18B2955900F76068 /* blockimp_arm_stret.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_arm_stret.tramp; sourceTree = "<group>"; };
-		05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = PLPatchMasterTests.octest; path = PLPatchMasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		05EEA0611AB55B86000C8B89 /* PLCrashAsyncMachOImage.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = PLCrashAsyncMachOImage.c; sourceTree = "<group>"; };
-		05EEA0621AB55B86000C8B89 /* PLCrashAsyncMachOImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PLCrashAsyncMachOImage.h; sourceTree = "<group>"; };
-		05EEA0631AB55B86000C8B89 /* PLCrashAsyncMachOImageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PLCrashAsyncMachOImageTests.m; sourceTree = "<group>"; };
+		05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PLPatchMasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SymbolBinder.cpp; sourceTree = "<group>"; };
+		05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SymbolBinder.hpp; sourceTree = "<group>"; };
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -237,7 +235,7 @@
 				05CAE62F18B292D300F76068 /* libPLPatchMaster-iOS.a */,
 				05A7FBF918B29EB90071D362 /* iOS Test Runner.app */,
 				0512CBAE18B2AA700096D0A9 /* PLPatchMaster-iOSTests.xctest */,
-				05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.octest */,
+				05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -378,9 +376,8 @@
 		05EEA0601AB55B50000C8B89 /* Mach-O */ = {
 			isa = PBXGroup;
 			children = (
-				05EEA0621AB55B86000C8B89 /* PLCrashAsyncMachOImage.h */,
-				05EEA0611AB55B86000C8B89 /* PLCrashAsyncMachOImage.c */,
-				05EEA0631AB55B86000C8B89 /* PLCrashAsyncMachOImageTests.m */,
+				05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */,
+				05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */,
 			);
 			name = "Mach-O";
 			sourceTree = "<group>";
@@ -414,7 +411,7 @@
 			isa = PBXGroup;
 			children = (
 				052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */,
-				052B1ED218B2887A00ACCE6B /* PLPatchMaster.m */,
+				052B1ED218B2887A00ACCE6B /* PLPatchMaster.mm */,
 				05A33A8918B28F490032E79F /* PLBlockLayout.h */,
 				05CAE65E18B2955B00F76068 /* ARM32 */,
 				05CAE65A18B2952600F76068 /* ARM64 */,
@@ -450,6 +447,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */,
 				05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */,
 				05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */,
 			);
@@ -548,7 +546,7 @@
 			);
 			name = PLPatchMasterTests;
 			productName = PLPatchMasterTests;
-			productReference = 05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.octest */;
+			productReference = 05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -634,7 +632,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0512CBC118B2AAD70096D0A9 /* PLPatchMasterTests.m in Sources */,
-				05EEA06B1AB55BB4000C8B89 /* PLCrashAsyncMachOImageTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,8 +639,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05A33A8818B28F110032E79F /* PLPatchMaster.m in Sources */,
-				05EEA0671AB55B8E000C8B89 /* PLCrashAsyncMachOImage.c in Sources */,
+				05A33A8818B28F110032E79F /* PLPatchMaster.mm in Sources */,
+				05EEA0741AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */,
 				052B1F1218B28AB700ACCE6B /* blockimp_x86_64.tramp in Sources */,
 				052B1F1118B28AB700ACCE6B /* blockimp_x86_64_stret.tramp in Sources */,
 			);
@@ -663,9 +660,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05CAE65418B2932500F76068 /* PLPatchMaster.m in Sources */,
-				05EEA0691AB55BAD000C8B89 /* PLCrashAsyncMachOImage.c in Sources */,
+				05CAE65418B2932500F76068 /* PLPatchMaster.mm in Sources */,
 				05A7FBF118B2962C0071D362 /* blockimp_arm.tramp in Sources */,
+				05EEA0751AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */,
 				05A7FBF218B2962C0071D362 /* blockimp_arm_stret.tramp in Sources */,
 				05A7FBF318B2962C0071D362 /* blockimp_arm64.tramp in Sources */,
 			);
@@ -676,7 +673,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				05E8887B18B2B1840048AD6B /* PLPatchMasterTests.m in Sources */,
-				05EEA06A1AB55BB0000C8B89 /* PLCrashAsyncMachOImageTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -869,7 +865,6 @@
 				INFOPLIST_FILE = "PLPatchMaster/PLPatchMaster-Info.plist";
 				INSTALL_PATH = "@rpath";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -911,7 +906,6 @@
 				INFOPLIST_FILE = "PLPatchMaster/PLPatchMaster-Info.plist";
 				INSTALL_PATH = "@rpath";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = framework;
 			};
@@ -1113,7 +1107,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "PLPatchMasterTests/PLPatchMasterTests-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1149,7 +1142,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "PLPatchMasterTests/PLPatchMasterTests-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1158,13 +1150,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = "1.0-beta1";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DPL_BLOCKIMP_PRIVATE";
 				SDKROOT = macosx;
@@ -1182,12 +1176,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = "1.0-beta1";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-DPL_BLOCKIMP_PRIVATE";
 				SDKROOT = macosx;
