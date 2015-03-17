@@ -140,7 +140,7 @@ private:
 public:
     bind_opstream (const uint8_t *opcodes, const size_t opcodes_len, bool isLazy) : _p(opcodes), _instr(_p), _instr_max(_p + opcodes_len), _isLazy(isLazy) {}
     
-    bind_opstream (const bind_opstream &other) : _p(other._p), _instr(other._instr), _instr_max(other._instr_max), _isLazy(other._isLazy) {}
+    bind_opstream (const bind_opstream &other) : _p(other._p), _instr(other._instr), _instr_max(other._instr_max), _isLazy(other._isLazy), _eval_state(other._eval_state) {}
 
     /**
      * The parsed bind procedure for a single symbol.
