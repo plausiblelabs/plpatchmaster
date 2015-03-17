@@ -185,6 +185,7 @@ public:
     /** Symbol binding function */
     using bind_fn = std::function<void (const SymbolName &name, uintptr_t *target, int64_t addend)>;
 
+    const std::string &MainExecutablePath ();
     static LocalImage Analyze (const std::string &path, const pl_mach_header_t *header);
     void rebind_symbols (const bind_fn &binder);
     void evaluate_bind_opstream (const bind_opstream &opcodes, const bind_fn &binder);

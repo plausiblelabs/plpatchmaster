@@ -27,6 +27,7 @@
  */
 
 #include "SymbolBinder.hpp"
+#include <mutex>
 
 namespace patchmaster {
 
@@ -108,8 +109,29 @@ int64_t read_sleb128 (const void *location, std::size_t *size) {
     *size = position;
     return result;
 }
+
+/**
+ * Return the linker-provided path to the main executable.
+ */
+const std::string &LocalImage::MainExecutablePath () {
+    static std::string path;
     
+    /* Fetch the path only once */
+    std::once_flag once;
+    std::call_once(once, []{
+        char *buffer = nullptr;
+        uint32_t buffer_len = 0;
+        while (_NSGetExecutablePath(buffer, &buffer_len) == -1) {
+            free(buffer);
+            buffer = (char *) malloc(buffer_len);
+        }
+        path = buffer;
+        free(buffer);
+    });
     
+    return path;
+}
+
 /**
  * Analyze an in-memory Mach-O image.
  *
@@ -228,9 +250,6 @@ void LocalImage::evaluate_bind_opstream (const bind_opstream &opcodes, const bin
     /* dylib path from which the symbol will be resolved, or an empty string if unspecified or flat binding. */
     std::string sym_image("");
     
-    /* buffer used to hold an allocated image path, if any */
-    std::vector<char> sym_image_buffer;
-    
     /* bind type (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
     uint8_t bind_type = BIND_TYPE_POINTER;
     
@@ -292,23 +311,17 @@ void LocalImage::evaluate_bind_opstream (const bind_opstream &opcodes, const bin
                 
             case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
                 switch (ops.signed_immd()) {
-                        /* Enable flat resolution */
+                    /* Enable flat resolution */
                     case BIND_SPECIAL_DYLIB_FLAT_LOOKUP:
                         sym_image = "";
                         break;
                         
-                        /* Fetch the path of the main executable */
-                    case BIND_SPECIAL_DYLIB_MAIN_EXECUTABLE: {
-                        uint32_t buflen = (uint32_t) sym_image_buffer.size();
-                        while (_NSGetExecutablePath(&sym_image_buffer[0], &buflen) == -1) {
-                            sym_image_buffer.resize(buflen);
-                        }
-                        
-                        sym_image = string(&sym_image_buffer[0]);
+                    /* Fetch the path of the main executable */
+                    case BIND_SPECIAL_DYLIB_MAIN_EXECUTABLE:
+                        sym_image = MainExecutablePath();
                         break;
-                    }
                         
-                        /* Use our own path */
+                    /* Use our own path */
                     case BIND_SPECIAL_DYLIB_SELF:
                         sym_image = _path.c_str();
                         break;
