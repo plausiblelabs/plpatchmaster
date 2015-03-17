@@ -42,6 +42,7 @@
 		05EEA0C91AB7C1FF000C8B89 /* SymbolName.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0C61AB7C1FF000C8B89 /* SymbolName.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
 		05EEA0CB1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */; };
 		05EEA0CC1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */; };
+		05EEA0CD1AB7C6FA000C8B89 /* PMLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0771AB752F9000C8B89 /* PMLog.h */; settings = {ATTRIBUTES = (Private, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -455,6 +456,7 @@
 				05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */,
 				05EEA0C91AB7C1FF000C8B89 /* SymbolName.hpp in Headers */,
 				05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */,
+				05EEA0CD1AB7C6FA000C8B89 /* PMLog.h in Headers */,
 				05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
