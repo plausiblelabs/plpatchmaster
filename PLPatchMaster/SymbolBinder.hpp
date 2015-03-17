@@ -225,6 +225,9 @@ public:
     
     /** Return true if there are no additional opcodes to be read. */
     inline bool isEmpty () { return _p >= _instr_max; }
+    
+    /** Return true if this is a lazy opcode stream. */
+    inline bool isLazy () { return _isLazy; }
 
     /** Read a NUL-terminated C string from the stream, advancing the current position past the string. */
     inline const char *cstring () {
@@ -274,6 +277,11 @@ public:
     static const std::string &MainExecutablePath ();
     static LocalImage Analyze (const std::string &path, const pl_mach_header_t *header);
     void rebind_symbols (const bind_fn &binder);
+    
+    /**
+     * Return the image's symbol binding opcode streams.
+     */
+    std::shared_ptr<std::vector<const bind_opstream>> bindOpcodes() const { return _bindOpcodes; }
     
 private:
     /** Mach-O image header */
