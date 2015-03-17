@@ -75,6 +75,10 @@ class LocalImage;
  * This was adapted from our DWARF opcode evaluation code in PLCrashReporter.
  */
 class bind_opstream {
+public:
+    class symbol_proc;
+
+private:
     /** Current position within the op stream */
     const uint8_t *_p;
     
@@ -115,6 +119,19 @@ class bind_opstream {
         
         /* The actual in-memory bind target address. */
         uintptr_t bind_address = 0;
+        
+        /**
+         * Return symbol_proc representation of the current evaluation state.
+         */
+        symbol_proc symbol_proc () {
+            return symbol_proc::symbol_proc(
+                    SymbolName(sym_image, sym_name),
+                    bind_type,
+                    sym_flags,
+                    addend,
+                    bind_address
+            );
+        }
     };
     
     /** The current evaluation state. */

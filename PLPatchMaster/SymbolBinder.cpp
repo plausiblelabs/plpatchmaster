@@ -119,19 +119,6 @@ int64_t read_sleb128 (const void *location, std::size_t *size) {
  * @param bind Function to call upon successfully evaluating a full bind procedure for a symbol.
  */
 uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind) {
-    /*
-     * Hand off to the provided bind function.
-     */
-    auto handle_bind = [&]() {
-        bind(symbol_proc(
-            SymbolName(_eval_state.sym_image, _eval_state.sym_name),
-            _eval_state.bind_type,
-            _eval_state.sym_flags,
-            _eval_state.addend,
-            _eval_state.bind_address)
-        );
-    };
-    
     /* Given an index into our reference libraries, update the `sym_image` state */
     auto set_current_image = [&](uint64_t image_idx) {
         if (image_idx > image._libraries->size()) {
@@ -216,7 +203,7 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
             
         case BIND_OPCODE_DO_BIND:
             /* Perform the bind */
-            handle_bind();
+            bind(_eval_state.symbol_proc());
             
             /* This implicitly advances the current bind address by the pointer width */
             _eval_state.bind_address += sizeof(uintptr_t);
@@ -224,7 +211,7 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
             
         case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
             /* Perform the bind */
-            handle_bind();
+            bind(_eval_state.symbol_proc());
             
             /* Advance the bind address */
             _eval_state.bind_address += uleb128();
@@ -232,7 +219,7 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
             
         case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
             /* Perform the bind */
-            handle_bind();
+            bind(_eval_state.symbol_proc());
             
             /* Immediate offset scaled by the native pointer width */
             _eval_state.bind_address += immd() * sizeof(uintptr_t) + sizeof(uintptr_t);
@@ -247,7 +234,7 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
             
             for (uint64_t i = 0; i < count; i++) {
                 /* Perform the bind */
-                handle_bind();
+                bind(_eval_state.symbol_proc());
                 
                 /* Advance by the requested skip */
                 _eval_state.bind_address += skip + sizeof(uintptr_t);
