@@ -271,12 +271,9 @@ private:
     ) : _header(header), _vmaddr_slide(vmaddr_slide), _libraries(libraries), _segments(segments), _bindOpcodes(bindings), _path(path) {}
 
 public:
-    /** Symbol binding function */
-    using bind_fn = std::function<void (const SymbolName &name, uintptr_t *target, int64_t addend)>;
-
     static const std::string &MainExecutablePath ();
     static LocalImage Analyze (const std::string &path, const pl_mach_header_t *header);
-    void rebind_symbols (const bind_fn &binder);
+    void rebind_symbols (const std::function<void(const bind_opstream::symbol_proc &)> &bind);
     
     /**
      * Return a borrowed reference to the image's path.

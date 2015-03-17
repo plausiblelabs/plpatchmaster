@@ -533,25 +533,26 @@ static void perform_dyld_rebinding (const PatchTable &patches, const char *image
     auto image = LocalImage::Analyze(image_name, (const pl_mach_header_t *) mh);
     
     /* Rebind all symbols */
-    image.rebind_symbols([&patches](const SymbolName &name, uintptr_t *target, int64_t addend) {
+    image.rebind_symbols([&patches](const bind_opstream::symbol_proc &sp) {
         // TODO: We need to evaluate when/how addend is used.
-        if (addend != 0) {
+        if (sp.addend() != 0) {
             // PMDebug("Skipping unsupported symbol binding for %s:%s with non-zero addend %" PRId64, name.image().c_str(), name.symbol().c_str(), addend);
             return;
         }
         
         /* Check whether there are /any/ patches for this symbol */
-        if (patches.count(name.symbol()) == 0)
+        if (patches.count(sp.name().symbol()) == 0)
             return;
         
         /* Fetch the patches and apply /all/ patches the match; this ensures that patches added later take priority. */
-        for (auto &&patch : patches.at(name.symbol())) {
+        for (auto &&patch : patches.at(sp.name().symbol())) {
             /* Skip non-matching patches */
-            if (!std::get<0>(patch).match(name))
+            if (!std::get<0>(patch).match(sp.name()))
                 continue;
             
             /* Apply matching patches */
             auto patchValue = std::get<1>(patch);
+            uintptr_t *target = (uintptr_t *) sp.bind_address();
             if (*target != patchValue) {
                 *target = patchValue;
             }

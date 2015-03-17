@@ -394,16 +394,16 @@ LocalImage LocalImage::Analyze (const std::string &path, const pl_mach_header_t 
  *
  * @return Returns true on success, or false if the opcode stream references invalid segment or image addresses.
  */
-void LocalImage::rebind_symbols (const bind_fn &binder) {
+void LocalImage::rebind_symbols (const std::function<void(const bind_opstream::symbol_proc &)> &bind) {
     for (auto &&opcodes : *_bindOpcodes) {
         auto ops = opcodes;
-        ops.evaluate(*this, [&](const bind_opstream::symbol_proc &sp) {
+        ops.evaluate(*this, [&bind](const bind_opstream::symbol_proc &sp) {
             // TODO - Can we handle the other types?
             if (sp.type() != BIND_TYPE_POINTER)
                 return;
             
             /* Hand off to our caller */
-            binder(sp.name(), (uintptr_t *) sp.bind_address(), sp.addend());
+            bind(sp);
         });
     }
 }
