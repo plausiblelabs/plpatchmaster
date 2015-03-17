@@ -214,7 +214,7 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
             bind(_eval_state.symbol_proc());
             
             /* Advance the bind address */
-            _eval_state.bind_address += uleb128();
+            _eval_state.bind_address += uleb128() + sizeof(uintptr_t);
             break;
             
         case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
