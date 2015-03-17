@@ -38,9 +38,10 @@
 		05E8887E18B2B19F0048AD6B /* PLPatchMaster.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1EE218B2896F00ACCE6B /* PLPatchMaster.framework */; };
 		05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		05EEA05F1AB5545A000C8B89 /* PLBlockIMP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 052B1ED818B2890D00ACCE6B /* PLBlockIMP.framework */; };
-		05EEA0741AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */; };
-		05EEA0751AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */; };
-		05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */; };
+		05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		05EEA0C91AB7C1FF000C8B89 /* SymbolName.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0C61AB7C1FF000C8B89 /* SymbolName.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		05EEA0CB1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */; };
+		05EEA0CC1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -170,9 +171,10 @@
 		05CAE65C18B2954B00F76068 /* blockimp_arm.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_arm.tramp; sourceTree = "<group>"; };
 		05CAE65D18B2955900F76068 /* blockimp_arm_stret.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_arm_stret.tramp; sourceTree = "<group>"; };
 		05E8886B18B2B16D0048AD6B /* PLPatchMasterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PLPatchMasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SymbolBinder.cpp; sourceTree = "<group>"; };
 		05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SymbolBinder.hpp; sourceTree = "<group>"; };
 		05EEA0771AB752F9000C8B89 /* PMLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PMLog.h; sourceTree = "<group>"; };
+		05EEA0C61AB7C1FF000C8B89 /* SymbolName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SymbolName.hpp; sourceTree = "<group>"; };
+		05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SymbolBinder.cpp; sourceTree = "<group>"; };
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -377,8 +379,9 @@
 		05EEA0601AB55B50000C8B89 /* Mach-O */ = {
 			isa = PBXGroup;
 			children = (
+				05EEA0C61AB7C1FF000C8B89 /* SymbolName.hpp */,
 				05EEA0731AB62B8A000C8B89 /* SymbolBinder.hpp */,
-				05EEA0721AB62B8A000C8B89 /* SymbolBinder.cpp */,
+				05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */,
 			);
 			name = "Mach-O";
 			sourceTree = "<group>";
@@ -450,6 +453,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */,
+				05EEA0C91AB7C1FF000C8B89 /* SymbolName.hpp in Headers */,
 				05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */,
 				05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */,
 			);
@@ -642,9 +646,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				05A33A8818B28F110032E79F /* PLPatchMaster.mm in Sources */,
-				05EEA0741AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */,
 				052B1F1218B28AB700ACCE6B /* blockimp_x86_64.tramp in Sources */,
 				052B1F1118B28AB700ACCE6B /* blockimp_x86_64_stret.tramp in Sources */,
+				05EEA0CB1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -663,8 +667,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				05CAE65418B2932500F76068 /* PLPatchMaster.mm in Sources */,
+				05EEA0CC1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */,
 				05A7FBF118B2962C0071D362 /* blockimp_arm.tramp in Sources */,
-				05EEA0751AB62B8A000C8B89 /* SymbolBinder.cpp in Sources */,
 				05A7FBF218B2962C0071D362 /* blockimp_arm_stret.tramp in Sources */,
 				05A7FBF318B2962C0071D362 /* blockimp_arm64.tramp in Sources */,
 			);
