@@ -209,15 +209,15 @@ public:
     /** Read a single opcode from the stream. */
     inline uint8_t opcode () {
         assert(_p < _instr_max);
-        uint8_t value = (*_p) & BIND_OPCODE_MASK;
+        uint8_t op = (*_p) & BIND_OPCODE_MASK;
         _immd = (*_p) & BIND_IMMEDIATE_MASK;
         _p++;
         
         /* Skip BIND_OPCODE_DONE if it occurs within a lazy binding opcode stream */
-        if (_isLazy && *_p == BIND_OPCODE_DONE && !isEmpty())
+        if (_isLazy && op == BIND_OPCODE_DONE && !isEmpty())
             skip(1);
         
-        return value;
+        return op;
     };
 
     /** Return the current stream position. */
