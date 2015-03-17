@@ -66,6 +66,9 @@ static constexpr uint32_t PL_LC_SEGMENT = LC_SEGMENT;
 uint64_t read_uleb128 (const void *location, std::size_t *size);
 int64_t read_sleb128 (const void *location, std::size_t *size);
 
+/* Forward declaration */
+class LocalImage;
+
 /**
  * A simple byte-based opcode stream reader.
  *
@@ -90,11 +93,92 @@ class bind_opstream {
      * the lazy section is by dyld on-demand, and is supposed to terminate after resolving one symbol).
      */
     bool _isLazy;
+    
+    /**
+     * Opcode evaluation state.
+     */
+    struct evaluation_state {
+        /* dylib path from which the symbol will be resolved, or an empty string if unspecified or flat binding. */
+        std::string sym_image = "";
+        
+        /* bind type (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
+        uint8_t bind_type = BIND_TYPE_POINTER;
+        
+        /* symbol name */
+        const char *sym_name = "";
+        
+        /* symbol flags (one of BIND_SYMBOL_FLAGS_WEAK_IMPORT, BIND_SYMBOL_FLAGS_NON_WEAK_DEFINITION) */
+        uint8_t sym_flags = 0;
+        
+        /* A value to be added to the resolved symbol's address before binding. */
+        int64_t addend = 0;
+        
+        /* The actual in-memory bind target address. */
+        uintptr_t bind_address = 0;
+    };
+    
+    /** The current evaluation state. */
+    evaluation_state _eval_state;
 
 public:
     bind_opstream (const uint8_t *opcodes, const size_t opcodes_len, bool isLazy) : _p(opcodes), _instr(_p), _instr_max(_p + opcodes_len), _isLazy(isLazy) {}
     
     bind_opstream (const bind_opstream &other) : _p(other._p), _instr(other._instr), _instr_max(other._instr_max), _isLazy(other._isLazy) {}
+
+    /**
+     * The parsed bind procedure for a single symbol.
+     */
+    class symbol_proc {
+    public:
+        /**
+         * Construct a new symbol procedure record.
+         *
+         * @param name The two-level symbol name bound by this procedure.
+         * @param type The bind type for this symbol.
+         * @param flags The bind flags for this symbol.
+         * @param addend A value to be added to the resolved symbol's address before binding.
+         * @param bind_address The actual in-memory bind target address.
+         */
+        symbol_proc (const SymbolName &name, uint8_t type, uint8_t flags, int64_t addend, uintptr_t bind_address) :
+            _name(name), _type(type), _flags(flags), _addend(addend), _bind_address(bind_address) {}
+        
+        symbol_proc (SymbolName &&name, uint8_t type, uint8_t flags, int64_t addend, uintptr_t bind_address) :
+            _name(std::move(name)), _type(type), _flags(flags), _addend(addend), _bind_address(bind_address) {}
+        
+        /** The two-level symbol name bound by this procedure. */
+        const SymbolName &name () const { return _name; }
+    
+        /* The bind type for this symbol (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
+        uint8_t type () const { return _type; }
+        
+        /* The bind flags for this symbol (one of BIND_SYMBOL_FLAGS_WEAK_IMPORT, BIND_SYMBOL_FLAGS_NON_WEAK_DEFINITION) */
+        uint8_t flags () const { return _flags; }
+        
+        /* A value to be added to the resolved symbol's address before binding. */
+        int64_t addend () const { return _addend; }
+        
+        /* The actual in-memory bind target address. */
+        uintptr_t bind_address () const { return _bind_address; }
+        
+    private:
+        /** The two-level symbol name bound by this procedure. */
+        SymbolName _name;
+        
+        /* The bind type for this symbol (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
+        uint8_t _type;
+        
+        /* The bind flags for this symbol (one of BIND_SYMBOL_FLAGS_WEAK_IMPORT, BIND_SYMBOL_FLAGS_NON_WEAK_DEFINITION) */
+        uint8_t _flags = 0;
+        
+        /* A value to be added to the resolved symbol's address before binding. */
+        int64_t _addend = 0;
+        
+        /* The actual in-memory bind target address. */
+        uintptr_t _bind_address = 0;
+    };
+    
+    void evaluate (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind);
+    uint8_t step (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind);
     
     /** Read a ULEB128 value and advance the stream */
     inline uint64_t uleb128 () {
@@ -169,6 +253,8 @@ public:
  */
 class LocalImage {
 private:
+    friend class bind_opstream;
+
     /**
      * Construct a new local image.
      */
@@ -185,11 +271,9 @@ public:
     /** Symbol binding function */
     using bind_fn = std::function<void (const SymbolName &name, uintptr_t *target, int64_t addend)>;
 
-    const std::string &MainExecutablePath ();
+    static const std::string &MainExecutablePath ();
     static LocalImage Analyze (const std::string &path, const pl_mach_header_t *header);
     void rebind_symbols (const bind_fn &binder);
-    void evaluate_bind_opstream (const bind_opstream &opcodes, const bind_fn &binder);
-
     
 private:
     /** Mach-O image header */

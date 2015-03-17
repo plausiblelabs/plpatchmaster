@@ -111,6 +111,169 @@ int64_t read_sleb128 (const void *location, std::size_t *size) {
 }
 
 /**
+ * Step the opcode stream, evaluating and returning the next opcode.
+ *
+ * Upon evaluating a complete symbol binding procedure, it will be dispatched to the provided bind function.
+ *
+ * @param image The local image to be used as the procedure's execution environment.
+ * @param bind Function to call upon successfully evaluating a full bind procedure for a symbol.
+ */
+inline uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind) {
+    /*
+     * Hand off to the provided bind function.
+     */
+    auto handle_bind = [&]() {
+        bind(symbol_proc(
+            SymbolName(_eval_state.sym_image, _eval_state.sym_name),
+            _eval_state.bind_type,
+            _eval_state.sym_flags,
+            _eval_state.addend,
+            _eval_state.bind_address)
+        );
+    };
+    
+    /* Given an index into our reference libraries, update the `sym_image` state */
+    auto set_current_image = [&](uint64_t image_idx) {
+        if (image_idx > image._libraries->size()) {
+            PMFatal("dyld bind opcode in '%s' references invalid image index %" PRIu64, image._path.c_str(), image_idx);
+            return;
+        }
+        
+        /* `0` is a special index referencing the current image */
+        if (image_idx == 0) {
+            _eval_state.sym_image = image._path;
+        } else {
+            _eval_state.sym_image = image._libraries->at(image_idx - 1);
+        }
+    };
+    
+    uint8_t op = opcode();
+    switch (op) {
+        case BIND_OPCODE_DONE:
+            break;
+            
+        case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM: {
+            set_current_image(immd());
+            break;
+        }
+            
+        case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB: {
+            set_current_image(uleb128());
+            break;
+        }
+            
+        case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
+            switch (signed_immd()) {
+                    /* Enable flat resolution */
+                case BIND_SPECIAL_DYLIB_FLAT_LOOKUP:
+                    _eval_state.sym_image = "";
+                    break;
+                    
+                    /* Fetch the path of the main executable */
+                case BIND_SPECIAL_DYLIB_MAIN_EXECUTABLE:
+                    _eval_state.sym_image = LocalImage::MainExecutablePath();
+                    break;
+                    
+                    /* Use our own path */
+                case BIND_SPECIAL_DYLIB_SELF:
+                    _eval_state.sym_image = image._path.c_str();
+                    break;
+            }
+            
+            break;
+            
+        case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:
+            /* Flags are supplied as an immediate value. */
+            _eval_state.sym_flags = immd();
+            
+            /* Symbol name is defined inline. */
+            _eval_state.sym_name = cstring();
+            break;
+            
+        case BIND_OPCODE_SET_TYPE_IMM:
+            _eval_state.bind_type = immd();
+            break;
+            
+        case BIND_OPCODE_SET_ADDEND_SLEB:
+            _eval_state.addend = sleb128();
+            break;
+            
+        case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB: {
+            uint8_t segment_idx = immd();
+            if (segment_idx >= image._segments->size())
+                PMFatal("dyld BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB in '%s' references invalid segment index %" PRIu8, image._path.c_str(), segment_idx);
+            
+            /* Compute the in-memory address from the segment reference */
+            const pl_segment_command_t *segment = image._segments->at(segment_idx);
+            _eval_state.bind_address = segment->vmaddr + image._vmaddr_slide;
+            _eval_state.bind_address += uleb128();
+            break;
+        }
+            
+        case BIND_OPCODE_ADD_ADDR_ULEB:
+            _eval_state.bind_address += uleb128();
+            break;
+            
+        case BIND_OPCODE_DO_BIND:
+            /* Perform the bind */
+            handle_bind();
+            
+            /* This implicitly advances the current bind address by the pointer width */
+            _eval_state.bind_address += sizeof(uintptr_t);
+            break;
+            
+        case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
+            /* Perform the bind */
+            handle_bind();
+            
+            /* Advance the bind address */
+            _eval_state.bind_address += uleb128();
+            break;
+            
+        case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
+            /* Perform the bind */
+            handle_bind();
+            
+            /* Immediate offset scaled by the native pointer width */
+            _eval_state.bind_address += immd() * sizeof(uintptr_t) + sizeof(uintptr_t);
+            break;
+            
+        case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB: {
+            /* Fetch the number of addresses at which this symbol should be bound */
+            uint64_t count = uleb128();
+            
+            /* Fetch the number of bytes to skip between each binding */
+            uint64_t skip = uleb128();
+            
+            for (uint64_t i = 0; i < count; i++) {
+                /* Perform the bind */
+                handle_bind();
+                
+                /* Advance by the requested skip */
+                _eval_state.bind_address += skip + sizeof(uintptr_t);
+            }
+            break;
+        }
+            
+        default:
+            PMFatal("Unhandled opcode: %hhx", op);
+            break;
+    }
+    
+    return op;
+}
+    
+/**
+ * Evaluate the opcode stream, passing all resolved bindings to @a bind.
+ *
+ * @param image The local image to be used as the procedure's execution environment.
+ * @param bind The function to be called with resolved symbol bindings.
+ */
+void bind_opstream::evaluate (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind) {
+    while (!isEmpty() && step(image, bind) != BIND_OPCODE_DONE);
+}
+
+/**
  * Return the linker-provided path to the main executable.
  */
 const std::string &LocalImage::MainExecutablePath () {
@@ -232,182 +395,17 @@ LocalImage LocalImage::Analyze (const std::string &path, const pl_mach_header_t 
  * @return Returns true on success, or false if the opcode stream references invalid segment or image addresses.
  */
 void LocalImage::rebind_symbols (const bind_fn &binder) {
-    for (auto &&opcodes : *_bindOpcodes)
-        evaluate_bind_opstream(opcodes, binder);
-}
-
-/**
- * Evaluate the given opcode stream, passing all resolved bindings to @a binder.
- *
- * @param opcodes The opcode stream to be evaluated.
- * @param binder The function to be called with resolved symbol bindings.
- *
- * @return Returns true on success, or false if the opcode stream references invalid segment or image addresses.
- */
-void LocalImage::evaluate_bind_opstream (const bind_opstream &opcodes, const bind_fn &binder) {
-    using namespace std;
-    
-    /* dylib path from which the symbol will be resolved, or an empty string if unspecified or flat binding. */
-    std::string sym_image("");
-    
-    /* bind type (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
-    uint8_t bind_type = BIND_TYPE_POINTER;
-    
-    /* symbol name */
-    const char *sym_name = "";
-    
-    /* symbol flags (one of BIND_SYMBOL_FLAGS_WEAK_IMPORT, BIND_SYMBOL_FLAGS_NON_WEAK_DEFINITION) */
-    uint8_t sym_flags = 0;
-    
-    /* A value to be added to the resolved symbol's address before binding. */
-    int64_t addend = 0;
-    
-    /* The actual in-memory bind target address. */
-    uintptr_t bind_address = 0;
-    
-    /*
-     * Check our patch table for this symbol; if found, try to apply
-     */
-    auto handle_bind = [&]() {
-        // TODO - Can we handle the other types?
-        if (bind_type != BIND_TYPE_POINTER)
-            return;
-        
-        /* Let our caller perform a bind */
-        binder(SymbolName(sym_image, sym_name), (uintptr_t *) bind_address, addend);
-    };
-    
-    /* Given an index into our reference libraries, update the `sym_image` state */
-    auto set_current_image = [&](uint64_t image_idx) {
-        if (image_idx > _libraries->size()) {
-            PMFatal("dyld bind opcode in '%s' references invalid image index %" PRIu64, _path.c_str(), image_idx);
-            return;
-        }
-        
-        /* `0` is a special index referencing the current image */
-        if (image_idx == 0) {
-            sym_image = _path;
-        } else {
-            sym_image = _libraries->at(image_idx - 1);
-        }
-    };
-    
-    bind_opstream ops = opcodes;
-    while (!ops.isEmpty()) {
-        uint8_t opcode = ops.opcode();
-        switch (opcode) {
-            case BIND_OPCODE_DONE:
+    for (auto &&opcodes : *_bindOpcodes) {
+        auto ops = opcodes;
+        ops.evaluate(*this, [&](const bind_opstream::symbol_proc &sp) {
+            // TODO - Can we handle the other types?
+            if (sp.type() != BIND_TYPE_POINTER)
                 return;
-                
-            case BIND_OPCODE_SET_DYLIB_ORDINAL_IMM: {
-                set_current_image(ops.immd());
-                break;
-            }
-                
-            case BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB: {
-                set_current_image(ops.uleb128());
-                break;
-            }
-                
-            case BIND_OPCODE_SET_DYLIB_SPECIAL_IMM:
-                switch (ops.signed_immd()) {
-                    /* Enable flat resolution */
-                    case BIND_SPECIAL_DYLIB_FLAT_LOOKUP:
-                        sym_image = "";
-                        break;
-                        
-                    /* Fetch the path of the main executable */
-                    case BIND_SPECIAL_DYLIB_MAIN_EXECUTABLE:
-                        sym_image = MainExecutablePath();
-                        break;
-                        
-                    /* Use our own path */
-                    case BIND_SPECIAL_DYLIB_SELF:
-                        sym_image = _path.c_str();
-                        break;
-                }
-                
-                break;
-                
-            case BIND_OPCODE_SET_SYMBOL_TRAILING_FLAGS_IMM:
-                /* Flags are supplied as an immediate value. */
-                sym_flags = ops.immd();
-                
-                /* Symbol name is defined inline. */
-                sym_name = ops.cstring();
-                break;
-                
-            case BIND_OPCODE_SET_TYPE_IMM:
-                bind_type = ops.immd();
-                break;
-                
-            case BIND_OPCODE_SET_ADDEND_SLEB:
-                addend = ops.sleb128();
-                break;
-                
-            case BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB: {
-                uint8_t segment_idx = ops.immd();
-                if (segment_idx >= _segments->size())
-                    PMFatal("dyld BIND_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB in '%s' references invalid segment index %" PRIu8, _path.c_str(), segment_idx);
-                
-                /* Compute the in-memory address from the segment reference */
-                const pl_segment_command_t *segment = _segments->at(segment_idx);
-                bind_address = segment->vmaddr + _vmaddr_slide;
-                bind_address += ops.uleb128();
-                break;
-            }
-                
-            case BIND_OPCODE_ADD_ADDR_ULEB:
-                bind_address += ops.uleb128();
-                break;
-                
-            case BIND_OPCODE_DO_BIND:
-                /* Perform the bind */
-                handle_bind();
-                
-                /* This implicitly advances the current bind address by the pointer width */
-                bind_address += sizeof(uintptr_t);
-                break;
-                
-            case BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB:
-                /* Perform the bind */
-                handle_bind();
-                
-                /* Advance the bind address */
-                bind_address += ops.uleb128();
-                break;
-                
-            case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
-                /* Perform the bind */
-                handle_bind();
-                
-                /* Immediate offset scaled by the native pointer width */
-                bind_address += ops.immd() * sizeof(uintptr_t) + sizeof(uintptr_t);
-                break;
-                
-            case BIND_OPCODE_DO_BIND_ULEB_TIMES_SKIPPING_ULEB: {
-                /* Fetch the number of addresses at which this symbol should be bound */
-                uint64_t count = ops.uleb128();
-                
-                /* Fetch the number of bytes to skip between each binding */
-                uint64_t skip = ops.uleb128();
-                
-                for (uint64_t i = 0; i < count; i++) {
-                    /* Perform the bind */
-                    handle_bind();
-                    
-                    /* Advance by the requested skip */
-                    bind_address += skip + sizeof(uintptr_t);
-                }
-                break;
-            }
-                
-            default:
-                PMFatal("Unhandled opcode: %hhx", opcode);
-                break;
-        }
+            
+            /* Hand off to our caller */
+            binder(sp.name(), (uintptr_t *) sp.bind_address(), sp.addend());
+        });
     }
-};
-
+}
 
 }
