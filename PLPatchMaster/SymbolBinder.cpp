@@ -118,7 +118,7 @@ int64_t read_sleb128 (const void *location, std::size_t *size) {
  * @param image The local image to be used as the procedure's execution environment.
  * @param bind Function to call upon successfully evaluating a full bind procedure for a symbol.
  */
-inline uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind) {
+uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(const symbol_proc &)> &bind) {
     /*
      * Hand off to the provided bind function.
      */

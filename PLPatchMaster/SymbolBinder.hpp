@@ -279,9 +279,24 @@ public:
     void rebind_symbols (const bind_fn &binder);
     
     /**
+     * Return a borrowed reference to the image's path.
+     */
+    const std::string &path () const { return _path; }
+    
+    /**
+     * Return the image's vm_slide.
+     */
+    intptr_t vmaddr_slide () const { return _vmaddr_slide; }
+
+    /**
      * Return the image's symbol binding opcode streams.
      */
-    std::shared_ptr<std::vector<const bind_opstream>> bindOpcodes() const { return _bindOpcodes; }
+    std::shared_ptr<std::vector<const bind_opstream>> bindOpcodes () const { return _bindOpcodes; }
+    
+    /**
+     * Return the image's defined segments.
+     */
+    std::shared_ptr<std::vector<const pl_segment_command_t *>> segments () const { return _segments; }
     
 private:
     /** Mach-O image header */
