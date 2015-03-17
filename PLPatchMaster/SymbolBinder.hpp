@@ -390,13 +390,13 @@ public:
                     auto info = (const dyld_info_command *) cmd;
                     uintptr_t linkedit_base = (linkedit->vmaddr + vm_slide) - linkedit->fileoff;
                     
-                    if (info->bind_off != 0)
+                    if (info->bind_size != 0)
                         bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->bind_off), (size_t) info->bind_size, false));
                     
-                    if (info->weak_bind_off != 0)
+                    if (info->weak_bind_size != 0)
                         bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->weak_bind_off), (size_t) info->weak_bind_size, false));
                     
-                    if (info->lazy_bind_off != 0)
+                    if (info->lazy_bind_size != 0)
                         bindOpcodes->push_back(bind_opstream((const uint8_t *) (linkedit_base + info->lazy_bind_off), (size_t) info->lazy_bind_size, true));
                 }
                     
