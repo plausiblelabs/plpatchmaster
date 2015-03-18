@@ -128,9 +128,9 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
         
         /* `0` is a special index referencing the current image */
         if (image_idx == 0) {
-            _eval_state.sym_image = image._path;
+            _eval_state.sym_image = image._path.c_str();
         } else {
-            _eval_state.sym_image = image._libraries->at(image_idx - 1);
+            _eval_state.sym_image = image._libraries->at(image_idx - 1).c_str();
         }
     };
     
@@ -158,7 +158,7 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
                     
                     /* Fetch the path of the main executable */
                 case BIND_SPECIAL_DYLIB_MAIN_EXECUTABLE:
-                    _eval_state.sym_image = LocalImage::MainExecutablePath();
+                    _eval_state.sym_image = LocalImage::MainExecutablePath().c_str();
                     break;
                     
                     /* Use our own path */

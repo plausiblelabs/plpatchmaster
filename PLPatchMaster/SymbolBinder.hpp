@@ -103,7 +103,7 @@ private:
      */
     struct evaluation_state {
         /* dylib path from which the symbol will be resolved, or an empty string if unspecified or flat binding. */
-        std::string sym_image = "";
+        const char *sym_image = "";
         
         /* bind type (one of BIND_TYPE_POINTER, BIND_TYPE_TEXT_ABSOLUTE32, or BIND_TYPE_TEXT_PCREL32) */
         uint8_t bind_type = BIND_TYPE_POINTER;

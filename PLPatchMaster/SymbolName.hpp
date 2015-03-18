@@ -56,48 +56,44 @@ namespace patchmaster {
          * single-level lookup.
          * @param symbol The symbol name.
          */
-        SymbolName (const std::string &image, const std::string &symbol) : _image(image), _symbol(symbol) {}
-        SymbolName (const std::string &&image, const std::string &&symbol) : _image(std::move(image)), _symbol(std::move(symbol)) {}
+        SymbolName (const char *image, const char *symbol) : _image(image), _symbol(symbol) {}
         
         /** Return the absolute or relative path of the image that exports this symbol. If the path is empty, single-level
          * namespacing is assumed. */
-        const std::string &image () const { return _image; }
+        const char *image () const { return _image; }
         
         /** Return the symbol name. */
-        const std::string &symbol () const { return _symbol; }
+        const char *symbol () const { return _symbol; }
         
         /**
          * Return true if this symbol name matches the provided name.
          */
         bool match (const SymbolName &other) const {
             /* If symbol names don't match, there's nothing else to test. */
-            if (other._symbol != _symbol)
+            if (strcmp(other._symbol, _symbol) != 0)
                 return false;
             
             /* If either image is zero-length, they'll match on the first matching symbol regardless of the image. */
-            if (other._image.length() == 0 || _image.length() == 0)
+            if (*other._image == '\0' || *_image == '\0')
                 return true;
             
-            /* Check for an exact image match */
-            if (other._image == _image)
-                return true;
-            
-            /* If either path is relative, perform substring matching */
-            if (_image[0] != '/' && other._image.length() >= _image.length()) {
-                return other._image.compare (other._image.length() - _image.length(), _image.length(), _image) == 0;
-            } else if (other._image[0] != '/' && _image.length() >= other._image.length()) {
-                return _image.compare (_image.length() - other._image.length(), other._image.length(), other._image) == 0;
+            /* Check for a suffix match */
+            size_t image_len = strlen(_image);
+            size_t other_image_len = strlen(other._image);
+            if (*other._image != '/' && other_image_len < image_len) {
+                return strcmp(other._image, _image + image_len - other_image_len) == 0;
+            } else if (*_image != '/' && image_len < other_image_len) {
+                return strcmp(_image, other._image + other_image_len - image_len) == 0;
+            } else {
+                return strcmp(_image, other._image) == 0;
             }
-            
-            /* No match */
-            return false;
         }
         
     private:
         /** Image, or empty string */
-        const std::string _image;
+        const char *_image;
         
         /** Symbol name. */
-        const std::string _symbol;
+        const char *_symbol;
     };
 } /* namespace patchmaster */
