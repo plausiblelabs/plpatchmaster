@@ -130,7 +130,11 @@ uint8_t bind_opstream::step (const LocalImage &image, const std::function<void(c
         if (image_idx == 0) {
             _eval_state.sym_image = image._path.c_str();
         } else {
-            _eval_state.sym_image = image._libraries->at(image_idx - 1).c_str();
+            if (image_idx > SIZE_T_MAX) {
+                PMFatal("dyld bind opcode in '%s' references image index %" PRIu64 " > SIZE_T_MAX" PRIu64, image._path.c_str(), image_idx);
+                return;
+            }
+            _eval_state.sym_image = image._libraries->at(static_cast<size_t>(image_idx) - 1).c_str();
         }
     };
     
