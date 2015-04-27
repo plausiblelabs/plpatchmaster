@@ -62,27 +62,43 @@ struct stret_return {
     XCTAssertTrue(strcmp(ret.value, "jello") == 0, @"Incorrect value returned: '%s'", ret.value);
 }
 
+static CFIndex patched_CFGetRetainCount (CFTypeRef ref) {
+    return 0xABBA;
+}
+
 - (void) testRebindSymbol {
-#if defined(__i386__) && !defined(TARGET_OS_IPHONE)
-    /* ObjC 1.0 runtime */
-    NSString *classSymbol = @".objc_class_name__NSAttributedString";
-#else
-    /* ObjC 2.0 runtime */
+    /* Fetch the current function pointer */
+    CFIndex (*orig)(CFTypeRef) = &CFGetRetainCount;
+    
+    /* Rebind */
+    [[PLPatchMaster master] rebindSymbol: @"_CFGetRetainCount" fromImage: @"CoreFoundation" replacementAddress: (uintptr_t) patched_CFGetRetainCount];
+    XCTAssertEqual(0xABBA, CFGetRetainCount((__bridge CFTypeRef) [NSArray array]));
+    
+    /* Restore the original */
+    [[PLPatchMaster master] rebindSymbol: @"_CFGetRetainCount" fromImage: @"CoreFoundation" replacementAddress: (uintptr_t) orig];
+    XCTAssertNotEqual(0xABBA, CFGetRetainCount((__bridge CFTypeRef) [NSArray array]));
+}
+
+#if !defined(__i386__) || (defined(__i386__) && TARGET_OS_IPHONE)
+- (void) testRebindClassSymbol {
+    /* This test only works on the ObjC 2.0 runtime; the ObjC 1.0 runtime performs
+     * class binding itself, rather than via dyld */
     NSString *classSymbol = @"_OBJC_CLASS_$_NSAttributedString";
-#endif
     
     /* Fetch the current class pointer */
     void *orig = (__bridge void *) [NSAttributedString class];
-    XCTAssertEqual((__bridge void *) [NSAttributedString class], orig);
+    XCTAssertEqualObjects([NSAttributedString class], (__bridge id) orig);
 
     /* Rebind */
     [[PLPatchMaster master] rebindSymbol: classSymbol fromImage: @"Foundation" replacementAddress: (uintptr_t) [NSArray class]];
-    XCTAssertEqual([NSAttributedString class], [NSArray class]);
-    XCTAssertNotEqual((__bridge void *) [NSAttributedString class], orig);
+    XCTAssertEqualObjects([NSAttributedString class], [NSArray class]);
+    XCTAssertNotEqualObjects([NSAttributedString class], (__bridge id) orig);
     
     /* Restore the original */
     [[PLPatchMaster master] rebindSymbol: classSymbol fromImage: @"Foundation" replacementAddress: (uintptr_t) orig];
-    XCTAssertEqual((__bridge void *) [NSAttributedString class], orig);
+    XCTAssertEqualObjects([NSAttributedString class], (__bridge id) orig);
 }
+#endif
 
 @end
+
