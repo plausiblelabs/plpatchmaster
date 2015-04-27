@@ -46,13 +46,116 @@ PAGE_NAME=pl_blockimp_patch_table_stret_page
 # Prefix to be placed at the start of the trampoline page
 trampoline_prefix () {
 asm << 'EOF'
+    // Indirect symbols; we have to implement manual PC-relative symbol indirection, as our trampoline page's runtime PC
+    // will not correspond to the location the linker will use to generate indirect references.
+    .section	__IMPORT,__pointers,non_lazy_symbol_pointers
+    L_CFDataCreateMutable$non_lazy_ptr:
+    .indirect_symbol _CFDataCreateMutable
+    .long	0
+
+    L_CFDataSetLength$non_lazy_ptr:
+    .indirect_symbol _CFDataSetLength
+    .long 0
+
+    L_CFDataGetMutableBytePtr$non_lazy_ptr:
+    .indirect_symbol _CFDataGetMutableBytePtr
+    .long 0
+
+    L_objc_msgSend$non_lazy_ptr:
+    .indirect_symbol _objc_msgSend
+    .long 0
+
+    // Objective-C selector references
+    .section	__TEXT,__cstring,cstring_literals
+    L_OBJC_METH_VAR_NAME_AUTORELEASE:
+    .asciz	"autorelease"
+
+    .section	__OBJC,__message_refs,literal_pointers,no_dead_strip
+    .align	2
+    L_OBJC_SELECTOR_REFERENCES_AUTORELEASE:
+    .long	L_OBJC_METH_VAR_NAME_AUTORELEASE
+
+    .text
     _block_tramp_dispatch:
         // Compute config page location
-        pop    %edx
-        and    $0xffffffe0, %edx // truncate to the trampoline start (each is 16 bytes)
-        sub    $0x1000, %edx // load the config location
+        popl   %edx
+        andl   $0xFFFFFFF0, %edx // truncate to the trampoline start (each is 16 bytes)
+        subl   $0x1000, %edx // load the config location
 
-        // TODO - We can't adjust the stack here.
+        // Fetch the original trampoline table address for use in PC-relative addressing, saving it in %ecx.
+        movl   0x4(%edx), %ecx // load the pl_trampoline address from our config
+        movl   0x4(%ecx), %ecx // load the pl_trampoline_table address from the pl_trampoline
+        movl   (%ecx), %ecx    // load the pl_trampoline_table_config address from the pl_trampoline_table
+        movl   12(%ecx), %ecx  // load the template code page address from the pl_trampoline_table
+
+        // Allocate space for our PLPatchIMP structure
+        // TODO: This is less than ideal -- since we must maintain the original stack layout when calling the
+        // target ptr, we can't stack allocate a PLBlockIMP structure.
+        // For now, we use a rather heavy heap allocation (+ autorelease) approach.
+
+        pushl  %ebp
+        movl   %esp, %ebp
+        subl   $16, %esp
+        movl   %edi, 8(%esp)  // Save caller's registers
+        movl   %esi, 12(%esp)
+
+        movl   %edx, %edi     // Move the config page address to a callee-saved register
+        movl   %ecx, %esi     // Move the trampoline page address to a callee-saved register
+
+        movl   $16, 4(%esp)  // arg2 - capacity
+        movl   $0, (%esp)    // arg1 - allocator
+        movl   L_CFDataCreateMutable$non_lazy_ptr - _block_tramp_dispatch(%esi), %eax
+        call   *%eax
+
+        movl   %eax, (%esp)  // arg1 - CFDataRef
+        movl   12(%esp), %ecx
+
+        movl   L_CFDataSetLength$non_lazy_ptr - _block_tramp_dispatch(%esi), %eax
+        call   *%eax
+
+        // Add the CFDataRef to the autorelease pool
+        movl	L_OBJC_SELECTOR_REFERENCES_AUTORELEASE - _block_tramp_dispatch(%esi), %eax
+        movl    %eax, 4(%esp) // arg2 - @selector(autorelease)
+
+        movl   L_objc_msgSend$non_lazy_ptr - _block_tramp_dispatch(%esi), %eax
+        call   *%eax
+
+        // Fetch the pointer to our PLPatchIMP allocation into %eax
+        movl   L_CFDataGetMutableBytePtr$non_lazy_ptr - _block_tramp_dispatch(%esi), %eax
+        call   *%eax
+
+        // Save the config page address in a non-callee-preserved register before it's overwritten by restoring
+        // the caller's state
+        movl   %edi, %edx
+
+        // Restore the caller's registers and stack layout
+        movl   8(%esp), %edi
+        movl   12(%esp), %esi
+        addl   $0x10, %esp
+        popl   %ebp
+
+        // At this point, we now have space for our PLPatchIMP structure and can proceed as normal
+        // Load 'self' from the original argument list and insert it in the first struct position
+        movl   0x8(%esp), %ecx
+        movl   %ecx, (%eax)
+
+        // Load the original IMP from the config page, and move to the second struct position
+        movl   0x8(%edx), %ecx
+        movl   %ecx, 0x4(%eax)
+
+        // Load the original SEL from the config page, and move to the third struct position
+        movl   0xC(%edx), %ecx
+        movl   %ecx, 0x8(%eax)
+
+        // Move our struct to the third parameter, overwriting IMP
+        movl   %eax, 0xC(%esp)
+        
+        // Load the block reference from the config page, and move to the second parameter, overwriting self
+        movl   (%edx), %ecx
+        movl   %ecx, 0x8(%esp)
+
+        // Jump to the block fptr
+        jmp    *0xc(%ecx)
 
         .align 4 // align the trampolines at 16 bytes (required to fit the config pages)
 EOF
