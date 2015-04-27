@@ -27,45 +27,47 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NSObject+PLPatchMaster.h"
+#import <libkern/OSAtomic.h>
+#import "SymbolBinder.hpp"
+
+using namespace patchmaster;
 
 /**
- * IMP patch state, as passed to a replacement block.
+ * @internal
+ *
+ * Table of symbol-based patches; maps the single-level symbol name to the
+ * fully qualified two-level SymbolNames and associated patch value.
  */
-typedef struct PLPatchIMP {
-    /** The original message target. */
-    void *self;
+typedef std::map<std::string, std::vector<std::tuple<SymbolName, uintptr_t>>> PatchTable;
+
+@interface PLPatchMasterImpl : NSObject {
+    /** Lock that must be held when mutating or accessing internal state */
+    OSSpinLock _lock;
     
-    /** The original IMP (eg, the IMP prior to patching) */
-    IMP origIMP;
-
-    /** The original SEL. */
-    SEL selector;
-} PLPatchIMP;
-
-/**
- * Forward a message received by a PLPatchMaster patch block.
- *
- * @param patch The PLPatchIMP patch argument.
- * @param func_type The function type to which the IMP should be cast.
- * @param ... All method arguments (Do not include self or _cmd).
- */
-#define PLPatchIMPFoward(patch, func_type, ...) ((func_type)patch->origIMP)((__bridge id) patch->self, patch->selector, ##__VA_ARGS__)
-
-/**
- * Return the original 'self' instance from a PLPatchMaster patch block.
- *
- * @param patch The PLPatchIMP patch argument.
- */
-#define PLPatchGetSelf(patch) ((__bridge id) patch->self)
-
-@class PLPatchMasterImpl;
-
-@interface PLPatchMaster : NSObject {
-    PLPatchMasterImpl *_impl;
+    IMP _callbackFunc;
+    
+    /**
+     * Table of symbol-based patches; maps the single-level symbol name to the
+     * fully qualified two-level SymbolNames and associated patch value.
+     */
+    PatchTable _symbolPatches;
+    
+    /** Maps class -> set -> selector names. Used to keep track of patches that have already been made,
+     * and thus do not require a _restoreBlock to be registered */
+    NSMutableDictionary *_classPatches;
+    
+    /** Maps class -> set -> selector names. Used to keep track of patches that have already been made,
+     * and thus do not require a _restoreBlock to be registered */
+    NSMutableDictionary *_instancePatches;
+    
+    /** An array of blocks to be executed on dynamic library load; the blocks are responsible
+     * for applying any pending patches to the newly loaded library */
+    NSMutableArray *_pendingPatches;
+    
+    /* An array of zero-arg blocks that, when executed, will reverse
+     * all previously patched methods. */
+    NSMutableArray *_restoreBlocks;
 }
-
-+ (instancetype) master;
 
 - (BOOL) patchClass: (Class) cls selector: (SEL) selector replacementBlock: (id) replacementBlock;
 - (BOOL) patchInstancesWithClass: (Class) cls selector: (SEL) selector replacementBlock: (id) replacementBlock;

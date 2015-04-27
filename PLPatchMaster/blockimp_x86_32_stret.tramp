@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# -----------------------------------------------------------------------
+#  Copyright (c) 2010-2015, Plausible Labs Cooperative, Inc.
+#  All Rights Reserved.
+# 
+#  Permission is hereby granted, free of charge, to any person obtaining
+#  a copy of this software and associated documentation files (the
+#  ``Software''), to deal in the Software without restriction, including
+#  without limitation the rights to use, copy, modify, merge, publish,
+#  distribute, sublicense, and/or sell copies of the Software, and to
+#  permit persons to whom the Software is furnished to do so, subject to
+#  the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included
+#  in all copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND,
+#  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+#  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+#  DEALINGS IN THE SOFTWARE.
+#  -----------------------------------------------------------------------
+
+# Supported architectures
+check_architecture () {
+    case $1 in
+        i386)
+            return 1
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+}
+
+# Page size
+PAGE_SIZE="4096"
+
+# The name of this page
+PAGE_NAME=pl_blockimp_patch_table_stret_page
+
+# Prefix to be placed at the start of the trampoline page
+trampoline_prefix () {
+asm << 'EOF'
+    _block_tramp_dispatch:
+        // Compute config page location
+        pop    %edx
+        and    $0xffffffe0, %edx // truncate to the trampoline start (each is 16 bytes)
+        sub    $0x1000, %edx // load the config location
+
+        // TODO - We can't adjust the stack here.
+
+        .align 4 // align the trampolines at 16 bytes (required to fit the config pages)
+EOF
+}
+
+# Generate a single trampoline
+trampoline () {
+asm << 'EOF'
+    // Call into the dispatcher, placing our return address on the stack.
+    call _block_tramp_dispatch # 5 bytes
+    .align 4 // align the trampolines at 16 bytes (required to fit the config pages)
+EOF
+}

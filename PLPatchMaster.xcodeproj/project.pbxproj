@@ -43,6 +43,14 @@
 		05EEA0CB1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */; };
 		05EEA0CC1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */; };
 		05EEA0CD1AB7C6FA000C8B89 /* PMLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 05EEA0771AB752F9000C8B89 /* PMLog.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		05F86B281AEE938D00743D8A /* blockimp_x86_32.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 05F86B271AEE938D00743D8A /* blockimp_x86_32.tramp */; };
+		05F86B2A1AEE939A00743D8A /* blockimp_x86_32_stret.tramp in Sources */ = {isa = PBXBuildFile; fileRef = 05F86B291AEE939A00743D8A /* blockimp_x86_32_stret.tramp */; };
+		05F86B2D1AEE9E9500743D8A /* PLPatchMasterImpl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 05F86B2B1AEE9E9500743D8A /* PLPatchMasterImpl.hpp */; };
+		05F86B2E1AEE9E9500743D8A /* PLPatchMasterImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05F86B2C1AEE9E9500743D8A /* PLPatchMasterImpl.mm */; };
+		05F86B2F1AEE9E9500743D8A /* PLPatchMasterImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05F86B2C1AEE9E9500743D8A /* PLPatchMasterImpl.mm */; };
+		05F86B321AEE9FC600743D8A /* NSObject+PLPatchMaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 05F86B301AEE9FC600743D8A /* NSObject+PLPatchMaster.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		05F86B331AEE9FC600743D8A /* NSObject+PLPatchMaster.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F86B311AEE9FC600743D8A /* NSObject+PLPatchMaster.m */; };
+		05F86B341AEE9FC600743D8A /* NSObject+PLPatchMaster.m in Sources */ = {isa = PBXBuildFile; fileRef = 05F86B311AEE9FC600743D8A /* NSObject+PLPatchMaster.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -176,6 +184,12 @@
 		05EEA0771AB752F9000C8B89 /* PMLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PMLog.h; sourceTree = "<group>"; };
 		05EEA0C61AB7C1FF000C8B89 /* SymbolName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SymbolName.hpp; sourceTree = "<group>"; };
 		05EEA0CA1AB7C29B000C8B89 /* SymbolBinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SymbolBinder.cpp; sourceTree = "<group>"; };
+		05F86B271AEE938D00743D8A /* blockimp_x86_32.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_x86_32.tramp; sourceTree = "<group>"; };
+		05F86B291AEE939A00743D8A /* blockimp_x86_32_stret.tramp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blockimp_x86_32_stret.tramp; sourceTree = "<group>"; };
+		05F86B2B1AEE9E9500743D8A /* PLPatchMasterImpl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PLPatchMasterImpl.hpp; sourceTree = "<group>"; };
+		05F86B2C1AEE9E9500743D8A /* PLPatchMasterImpl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PLPatchMasterImpl.mm; sourceTree = "<group>"; };
+		05F86B301AEE9FC600743D8A /* NSObject+PLPatchMaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+PLPatchMaster.h"; sourceTree = "<group>"; };
+		05F86B311AEE9FC600743D8A /* NSObject+PLPatchMaster.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+PLPatchMaster.m"; sourceTree = "<group>"; };
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -387,6 +401,15 @@
 			name = "Mach-O";
 			sourceTree = "<group>";
 		};
+		05F86B261AEE935E00743D8A /* x86-32 */ = {
+			isa = PBXGroup;
+			children = (
+				05F86B271AEE938D00743D8A /* blockimp_x86_32.tramp */,
+				05F86B291AEE939A00743D8A /* blockimp_x86_32_stret.tramp */,
+			);
+			name = "x86-32";
+			sourceTree = "<group>";
+		};
 		0867D691FE84028FC02AAC07 /* plblockimp */ = {
 			isa = PBXGroup;
 			children = (
@@ -417,10 +440,15 @@
 			children = (
 				052B1ED118B2887A00ACCE6B /* PLPatchMaster.h */,
 				052B1ED218B2887A00ACCE6B /* PLPatchMaster.mm */,
+				05F86B301AEE9FC600743D8A /* NSObject+PLPatchMaster.h */,
+				05F86B311AEE9FC600743D8A /* NSObject+PLPatchMaster.m */,
+				05F86B2B1AEE9E9500743D8A /* PLPatchMasterImpl.hpp */,
+				05F86B2C1AEE9E9500743D8A /* PLPatchMasterImpl.mm */,
 				05A33A8918B28F490032E79F /* PLBlockLayout.h */,
 				05EEA0771AB752F9000C8B89 /* PMLog.h */,
 				05CAE65E18B2955B00F76068 /* ARM32 */,
 				05CAE65A18B2952600F76068 /* ARM64 */,
+				05F86B261AEE935E00743D8A /* x86-32 */,
 				052B1F1318B28ABA00ACCE6B /* x86-64 */,
 				05EEA0601AB55B50000C8B89 /* Mach-O */,
 				052B1F0918B28A5000ACCE6B /* Resources */,
@@ -454,10 +482,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				05EEA0761AB62B8A000C8B89 /* SymbolBinder.hpp in Headers */,
+				05F86B321AEE9FC600743D8A /* NSObject+PLPatchMaster.h in Headers */,
 				05EEA0C91AB7C1FF000C8B89 /* SymbolName.hpp in Headers */,
 				05EEA0581AB50670000C8B89 /* PLPatchMaster.h in Headers */,
 				05EEA0CD1AB7C6FA000C8B89 /* PMLog.h in Headers */,
 				05A33A8A18B28F490032E79F /* PLBlockLayout.h in Headers */,
+				05F86B2D1AEE9E9500743D8A /* PLPatchMasterImpl.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -647,9 +677,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05F86B2E1AEE9E9500743D8A /* PLPatchMasterImpl.mm in Sources */,
+				05F86B2A1AEE939A00743D8A /* blockimp_x86_32_stret.tramp in Sources */,
+				05F86B281AEE938D00743D8A /* blockimp_x86_32.tramp in Sources */,
 				05A33A8818B28F110032E79F /* PLPatchMaster.mm in Sources */,
 				052B1F1218B28AB700ACCE6B /* blockimp_x86_64.tramp in Sources */,
 				052B1F1118B28AB700ACCE6B /* blockimp_x86_64_stret.tramp in Sources */,
+				05F86B331AEE9FC600743D8A /* NSObject+PLPatchMaster.m in Sources */,
 				05EEA0CB1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -668,8 +702,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05F86B341AEE9FC600743D8A /* NSObject+PLPatchMaster.m in Sources */,
 				05CAE65418B2932500F76068 /* PLPatchMaster.mm in Sources */,
 				05EEA0CC1AB7C29B000C8B89 /* SymbolBinder.cpp in Sources */,
+				05F86B2F1AEE9E9500743D8A /* PLPatchMasterImpl.mm in Sources */,
 				05A7FBF118B2962C0071D362 /* blockimp_arm.tramp in Sources */,
 				05A7FBF218B2962C0071D362 /* blockimp_arm_stret.tramp in Sources */,
 				05A7FBF318B2962C0071D362 /* blockimp_arm64.tramp in Sources */,
@@ -837,10 +873,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -882,10 +917,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1086,9 +1120,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -1115,7 +1149,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				INFOPLIST_FILE = "PLPatchMasterTests/PLPatchMasterTests-Info.plist";
-				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1124,9 +1157,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
