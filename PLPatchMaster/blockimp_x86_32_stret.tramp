@@ -90,7 +90,7 @@ asm << 'EOF'
 
         // Allocate space for our PLPatchIMP structure
         // TODO: This is less than ideal -- since we must maintain the original stack layout when calling the
-        // target ptr, we can't stack allocate a PLBlockIMP structure.
+        // target ptr, we can't stack allocate a PLPatchIMP structure.
         // For now, we use a rather heavy heap allocation (+ autorelease) approach.
 
         pushl  %ebp
