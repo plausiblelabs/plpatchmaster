@@ -52,14 +52,14 @@ namespace patchmaster {
         /**
          * Construct a new symbol name.
          *
-         * @param image The absolute or relative path of the image that exports this symbol, or an empty path to signify
+         * @param image The install name of the image that exports this symbol, or an empty path to signify
          * single-level lookup.
          * @param symbol The symbol name.
          */
         SymbolName (const char *image, const char *symbol) : _image(image), _symbol(symbol) {}
         
-        /** Return the absolute or relative path of the image that exports this symbol. If the path is empty, single-level
-         * namespacing is assumed. */
+        /** Return the install name of the image that exports this symbol, or an empty string. If the path is empty,
+         * single-level namespacing is assumed. */
         const char *image () const { return _image; }
         
         /** Return the symbol name. */
@@ -77,20 +77,12 @@ namespace patchmaster {
             if (*other._image == '\0' || *_image == '\0')
                 return true;
             
-            /* Check for a suffix match */
-            size_t image_len = strlen(_image);
-            size_t other_image_len = strlen(other._image);
-            if (*other._image != '/' && other_image_len < image_len) {
-                return strcmp(other._image, _image + image_len - other_image_len) == 0;
-            } else if (*_image != '/' && image_len < other_image_len) {
-                return strcmp(_image, other._image + other_image_len - image_len) == 0;
-            } else {
-                return strcmp(_image, other._image) == 0;
-            }
+            /* Check for an image name match */
+            return strcmp(_image, other._image) == 0;
         }
         
     private:
-        /** Image, or empty string */
+        /** Install name, or empty string */
         const char *_image;
         
         /** Symbol name. */

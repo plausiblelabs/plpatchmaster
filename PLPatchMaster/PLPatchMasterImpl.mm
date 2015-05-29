@@ -463,8 +463,9 @@ static void perform_dyld_rebinding (const PatchTable &patches, const char *image
  * and future loaded images.
  *
  * @param symbol The name of the symbol to patch.
- * @param library The absolute or relative path (e.g. 'Foundation') to the library responsible for exporting the original symbol.
- * @param replacementAddress The new address to which
+ * @param library The install name (e.g. '/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation') of
+ * the library responsible for exporting the original symbol.
+ * @param replacementAddress The new address to which the symbol will be bound.
  */
 - (void) rebindSymbol: (NSString *) symbol fromImage: (NSString *) library replacementAddress: (uintptr_t) replacementAddress {
     using namespace std;

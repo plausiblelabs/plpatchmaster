@@ -61,6 +61,10 @@ typedef struct PLPatchIMP {
 
 @class PLPatchMasterImpl;
 
+extern NSString *kPLPatchImageFoundation;
+extern NSString *kPLPatchImageCoreFoundation;
+extern NSString *kPLPatchImageLibSystem;
+
 @interface PLPatchMaster : NSObject {
     PLPatchMasterImpl *_impl;
 }

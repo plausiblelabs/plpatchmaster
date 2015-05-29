@@ -29,6 +29,15 @@
 #import "PLPatchMaster.h"
 #import "PLPatchMasterImpl.hpp"
 
+/** Foundation.framework's library install name. */
+NSString *kPLPatchImageFoundation = @"/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation";
+
+/** CoreFoundation.framework's library install name. */
+NSString *kPLPatchImageCoreFoundation = @"/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation";
+
+/** libSystem.dylib's library install name. */
+NSString *kPLPatchImageLibSystem = @"/usr/lib/libSystem.B.dylib";
+
 /**
  * Manages application (and removal) of runtime patches. This class is thread-safe, and may be accessed from any thread.
  */

@@ -71,11 +71,11 @@ static CFIndex patched_CFGetRetainCount (CFTypeRef ref) {
     CFIndex (*orig)(CFTypeRef) = &CFGetRetainCount;
     
     /* Rebind */
-    [[PLPatchMaster master] rebindSymbol: @"_CFGetRetainCount" fromImage: @"CoreFoundation" replacementAddress: (uintptr_t) patched_CFGetRetainCount];
+    [[PLPatchMaster master] rebindSymbol: @"_CFGetRetainCount" fromImage: kPLPatchImageCoreFoundation replacementAddress: (uintptr_t) patched_CFGetRetainCount];
     XCTAssertEqual(0xABBA, CFGetRetainCount((__bridge CFTypeRef) [NSArray array]));
     
     /* Restore the original */
-    [[PLPatchMaster master] rebindSymbol: @"_CFGetRetainCount" fromImage: @"CoreFoundation" replacementAddress: (uintptr_t) orig];
+    [[PLPatchMaster master] rebindSymbol: @"_CFGetRetainCount" fromImage: kPLPatchImageCoreFoundation replacementAddress: (uintptr_t) orig];
     XCTAssertNotEqual(0xABBA, CFGetRetainCount((__bridge CFTypeRef) [NSArray array]));
 }
 
